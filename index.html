@@ -303,58 +303,64 @@
             document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
         }
 
-        // État pour la création de kitting
-        let pendingKitting = null;
+        // État pour les dialogues multi-étapes
+        let pendingAction = null;
 
         async function processLocal(text) {
             const lower = text.toLowerCase();
 
-            // Si on attend des infos pour un kitting
-            if (pendingKitting) {
-                if (pendingKitting.step === 'ordre') {
-                    // Extraire le numéro (enlever espaces, tirets)
-                    const numero = text.replace(/[\s\-,]/g, '').replace(/[^\d]/g, '');
-                    if (numero.length >= 4) {
-                        pendingKitting.ordre = numero;
-                        pendingKitting.step = 'zone';
-                        return `Numéro ${numero} enregistré. Dans quelle zone, Madame?`;
-                    } else {
-                        return "Je n'ai pas compris le numéro. Répétez-le, Madame.";
-                    }
-                } else if (pendingKitting.step === 'zone') {
-                    const zone = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                    if (zone.length >= 1) {
-                        // Créer le kitting
-                        const result = await executeAction({
-                            action: 'create_kitting',
-                            ordre: pendingKitting.ordre,
-                            zone: zone
-                        });
-                        pendingKitting = null;
-                        return result;
-                    } else {
-                        return "Je n'ai pas compris la zone. Répétez-la, Madame.";
-                    }
-                }
+            // === DIALOGUES MULTI-ÉTAPES ===
+            if (pendingAction) {
+                return await handlePendingAction(text, lower);
             }
 
-            // Commandes de création
-            if (lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau') || lower.includes('nouvelle')) {
-                if (lower.includes('kitting') || lower.includes('commande')) {
-                    pendingKitting = { step: 'ordre' };
-                    return "Bien sûr Madame. Quel est le numéro de commande?";
-                }
+            // === KITTING - CRÉATION ===
+            if ((lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau')) &&
+                (lower.includes('kitting') || lower.includes('commande'))) {
+                pendingAction = { type: 'create_kitting', step: 'ordre' };
+                return "Bien sûr Madame. Quel est le numéro de commande?";
             }
 
-            // Commandes de lecture Kitting
-            if (lower.includes('kitting') || lower.includes('commande')) {
+            // === KITTING - LECTURE ===
+            if (lower.includes('kitting') || (lower.includes('commande') && !lower.includes('vocal'))) {
                 if (lower.includes('incomplet') || lower.includes('manque')) {
                     return await executeAction({action: 'incomplete_kits'});
+                }
+                if (lower.includes('détail') || lower.includes('detail')) {
+                    pendingAction = { type: 'kitting_detail', step: 'ordre' };
+                    return "Quel numéro de commande, Madame?";
                 }
                 return await executeAction({action: 'list_kittings'});
             }
 
-            // Commandes Cath's Eyes / Arrêt annuel
+            // === CATH'S EYES - RECHERCHE TRAVAUX ===
+            if (lower.includes('cherche') || lower.includes('recherche') || lower.includes('trouve')) {
+                if (lower.includes('travail') || lower.includes('travaux') || lower.includes('ot')) {
+                    pendingAction = { type: 'search_travail', step: 'query' };
+                    return "Que cherchez-vous? (OT, équipement, fournisseur, entreprise...)";
+                }
+            }
+
+            // === CATH'S EYES - DÉTAIL TRAVAIL ===
+            if ((lower.includes('détail') || lower.includes('detail') || lower.includes('info')) &&
+                (lower.includes('travail') || lower.includes('ot'))) {
+                pendingAction = { type: 'travail_detail', step: 'ot' };
+                return "Quel numéro d'OT, Madame?";
+            }
+
+            // === CATH'S EYES - TRAVAUX PAR FOURNISSEUR/ENTREPRISE ===
+            if (lower.includes('fournisseur') || lower.includes('entreprise')) {
+                pendingAction = { type: 'travaux_entreprise', step: 'nom' };
+                return "Quel nom de fournisseur ou entreprise?";
+            }
+
+            // === CATH'S EYES - TRAVAUX PLANIFIÉS AUJOURD'HUI ===
+            if ((lower.includes('aujourd') || lower.includes('ce jour') || lower.includes('planifié')) &&
+                (lower.includes('travaux') || lower.includes('travail'))) {
+                return await executeAction({action: 'travaux_aujourdhui'});
+            }
+
+            // === CATH'S EYES - STATS ET LISTES ===
             if (lower.includes('travaux') || lower.includes('arrêt') || lower.includes('arret')) {
                 if (lower.includes('en cours')) {
                     return await executeAction({action: 'travaux_en_cours'});
@@ -365,25 +371,126 @@
                 if (lower.includes('stat')) {
                     return await executeAction({action: 'stats_arret'});
                 }
+                if (lower.includes('liste') || lower.includes('tous') || lower.includes('tout')) {
+                    return await executeAction({action: 'list_travaux'});
+                }
                 return await executeAction({action: 'stats_arret'});
             }
 
-            // Pièces manquantes
+            // === CATH'S EYES - PIÈCES ===
             if (lower.includes('pièce') || lower.includes('piece')) {
                 if (lower.includes('manque') || lower.includes('manquant')) {
                     return await executeAction({action: 'pieces_manquantes'});
                 }
+                if (lower.includes('liste') || lower.includes('toute')) {
+                    return await executeAction({action: 'list_pieces'});
+                }
+                return await executeAction({action: 'pieces_manquantes'});
             }
 
-            // Commandes basiques
+            // === CATH'S EYES - TPAA (Avis) ===
+            if (lower.includes('tpaa') || lower.includes('avis')) {
+                if (lower.includes('liste') || lower.includes('tous') || lower.includes('tout')) {
+                    return await executeAction({action: 'list_avis'});
+                }
+                return await executeAction({action: 'list_avis'});
+            }
+
+            // === CATH'S EYES - PRÉPARATION ===
+            if (lower.includes('préparation') || lower.includes('preparation')) {
+                if (lower.includes('stat')) {
+                    return await executeAction({action: 'stats_preparation'});
+                }
+                return await executeAction({action: 'stats_preparation'});
+            }
+
+            // === COMMANDES BASIQUES ===
             if (lower.includes('heure')) return `Il est ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}, Madame.`;
             if (lower.includes('bonjour')) return "Bonjour Madame!";
             if (lower.includes('merci')) return "Je vous en prie, Madame.";
-            if (lower.includes('aide') || lower.includes('quoi faire')) {
-                return "Je peux: créer un kitting, lister les commandes, montrer les kits incomplets, afficher les stats de l'arrêt annuel, les travaux en cours, ou les pièces manquantes.";
+
+            if (lower.includes('aide') || lower.includes('quoi faire') || lower.includes('que peux')) {
+                return "KITTING: créer/lister commandes, kits incomplets. " +
+                       "ARRÊT: stats, travaux en cours/terminés/planifiés aujourd'hui, " +
+                       "chercher travail, détail OT, travaux par entreprise, " +
+                       "pièces manquantes, liste TPAA, stats préparation.";
+            }
+
+            // === ANNULER ===
+            if (lower.includes('annule') || lower.includes('cancel')) {
+                pendingAction = null;
+                return "Action annulée, Madame.";
             }
 
             return "Je n'ai pas compris, Madame. Dites 'aide' pour voir les commandes.";
+        }
+
+        // Gestion des dialogues multi-étapes
+        async function handlePendingAction(text, lower) {
+            const action = pendingAction;
+
+            // Annulation
+            if (lower.includes('annule') || lower.includes('cancel')) {
+                pendingAction = null;
+                return "Action annulée, Madame.";
+            }
+
+            // === CRÉATION KITTING ===
+            if (action.type === 'create_kitting') {
+                if (action.step === 'ordre') {
+                    const numero = text.replace(/[\s\-,]/g, '').replace(/[^\d]/g, '');
+                    if (numero.length >= 4) {
+                        pendingAction.ordre = numero;
+                        pendingAction.step = 'zone';
+                        return `Numéro ${numero} enregistré. Dans quelle zone?`;
+                    }
+                    return "Je n'ai pas compris le numéro. Répétez-le.";
+                }
+                if (action.step === 'zone') {
+                    const zone = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    if (zone.length >= 1) {
+                        const result = await executeAction({
+                            action: 'create_kitting',
+                            ordre: action.ordre,
+                            zone: zone
+                        });
+                        pendingAction = null;
+                        return result;
+                    }
+                    return "Je n'ai pas compris la zone. Répétez-la.";
+                }
+            }
+
+            // === DÉTAIL KITTING ===
+            if (action.type === 'kitting_detail') {
+                const numero = text.replace(/[\s\-,]/g, '').replace(/[^\d]/g, '');
+                if (numero.length >= 4) {
+                    pendingAction = null;
+                    return await executeAction({action: 'kitting_detail', ordre: numero});
+                }
+                return "Je n'ai pas compris le numéro. Répétez-le.";
+            }
+
+            // === RECHERCHE TRAVAIL ===
+            if (action.type === 'search_travail') {
+                pendingAction = null;
+                return await executeAction({action: 'search_travail', query: text});
+            }
+
+            // === DÉTAIL TRAVAIL ===
+            if (action.type === 'travail_detail') {
+                pendingAction = null;
+                return await executeAction({action: 'travail_detail', ot: text});
+            }
+
+            // === TRAVAUX PAR ENTREPRISE ===
+            if (action.type === 'travaux_entreprise') {
+                pendingAction = null;
+                return await executeAction({action: 'travaux_entreprise', entreprise: text});
+            }
+
+            pendingAction = null;
+            return "Je n'ai pas compris, Madame.";
         }
 
         function extractAction(response) {
@@ -479,22 +586,177 @@
                 }
 
                 if (action.action === 'stats_arret') {
-                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(100));
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(500));
                     const snapshot = await window.getDocs(q);
                     let stats = { total: 0, enCours: 0, termine: 0, attente: 0 };
                     snapshot.forEach(d => {
                         stats.total++;
-                        const status = d.data().status || '';
-                        if (status === 'En cours') stats.enCours++;
-                        else if (status === 'Terminé') stats.termine++;
+                        const status = (d.data().execution?.statutExec || d.data().statut || '').toLowerCase();
+                        if (status.includes('cours')) stats.enCours++;
+                        else if (status.includes('termin') || status.includes('fini')) stats.termine++;
                         else stats.attente++;
                     });
-                    return `Arrêt annuel: ${stats.total} travaux - ${stats.termine} terminés, ${stats.enCours} en cours, ${stats.attente} en attente.`;
+                    const pct = stats.total > 0 ? Math.round(stats.termine / stats.total * 100) : 0;
+                    return `Arrêt annuel: ${stats.total} travaux. ${stats.termine} terminés (${pct}%), ${stats.enCours} en cours, ${stats.attente} en attente.`;
+                }
+
+                // === RECHERCHE TRAVAIL ===
+                if (action.action === 'search_travail') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(500));
+                    const snapshot = await window.getDocs(q);
+                    const query = (action.query || '').toLowerCase();
+                    let matches = [];
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        const searchStr = `${data.ot} ${data.description} ${data.equipement} ${data.entreprise} ${data.localisation} ${data.discipline}`.toLowerCase();
+                        if (searchStr.includes(query)) {
+                            matches.push(data);
+                        }
+                    });
+                    if (matches.length === 0) return `Aucun travail trouvé pour "${action.query}".`;
+                    let result = `${matches.length} travail(aux) trouvé(s):\n`;
+                    matches.slice(0, 5).forEach(m => {
+                        result += `OT ${m.ot}: ${(m.description || '').substring(0, 40)}...\n`;
+                    });
+                    if (matches.length > 5) result += `...et ${matches.length - 5} autres.`;
+                    return result;
+                }
+
+                // === DÉTAIL TRAVAIL ===
+                if (action.action === 'travail_detail') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(500));
+                    const snapshot = await window.getDocs(q);
+                    const otSearch = (action.ot || '').toLowerCase().replace(/\s/g, '');
+                    let found = null;
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        if ((data.ot || '').toLowerCase().replace(/\s/g, '').includes(otSearch)) {
+                            found = data;
+                        }
+                    });
+                    if (!found) return `OT "${action.ot}" non trouvé.`;
+                    return `OT ${found.ot}:\n` +
+                           `Description: ${found.description || 'N/A'}\n` +
+                           `Équipement: ${found.equipement || 'N/A'}\n` +
+                           `Entreprise: ${found.entreprise || 'N/A'}\n` +
+                           `Localisation: ${found.localisation || 'N/A'}\n` +
+                           `Discipline: ${found.discipline || 'N/A'}\n` +
+                           `Priorité: ${found.priorite || 'N/A'}\n` +
+                           `Statut: ${found.execution?.statutExec || found.statut || 'N/A'}\n` +
+                           `Date prévue: ${found.datePrevue || 'N/A'}`;
+                }
+
+                // === TRAVAUX PAR ENTREPRISE ===
+                if (action.action === 'travaux_entreprise') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(500));
+                    const snapshot = await window.getDocs(q);
+                    const entreprise = (action.entreprise || '').toLowerCase();
+                    let matches = [];
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        if ((data.entreprise || '').toLowerCase().includes(entreprise)) {
+                            matches.push(data);
+                        }
+                    });
+                    if (matches.length === 0) return `Aucun travail trouvé pour l'entreprise "${action.entreprise}".`;
+                    let termine = matches.filter(m => (m.execution?.statutExec || '').toLowerCase().includes('termin')).length;
+                    return `${matches.length} travail(aux) pour "${action.entreprise}": ${termine} terminés, ${matches.length - termine} restants.`;
+                }
+
+                // === TRAVAUX PLANIFIÉS AUJOURD'HUI ===
+                if (action.action === 'travaux_aujourdhui') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(500));
+                    const snapshot = await window.getDocs(q);
+                    const today = new Date().toISOString().split('T')[0];
+                    let matches = [];
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        const datePrevue = (data.datePrevue || '').split('T')[0];
+                        if (datePrevue === today) {
+                            matches.push(data);
+                        }
+                    });
+                    if (matches.length === 0) return "Aucun travail planifié aujourd'hui.";
+                    let result = `${matches.length} travail(aux) planifié(s) aujourd'hui:\n`;
+                    matches.slice(0, 5).forEach(m => {
+                        result += `OT ${m.ot}: ${(m.description || '').substring(0, 30)}...\n`;
+                    });
+                    return result;
+                }
+
+                // === LISTE PIÈCES ===
+                if (action.action === 'list_pieces') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/pieces/items'), window.limit(50));
+                    const snapshot = await window.getDocs(q);
+                    if (snapshot.empty) return "Aucune pièce trouvée.";
+                    let result = `${snapshot.size} pièce(s):\n`;
+                    let count = 0;
+                    snapshot.forEach(d => {
+                        if (count < 5) {
+                            const data = d.data();
+                            result += `${data.reference || 'N/A'}: ${(data.designation || '').substring(0, 30)}\n`;
+                        }
+                        count++;
+                    });
+                    if (count > 5) result += `...et ${count - 5} autres.`;
+                    return result;
+                }
+
+                // === LISTE AVIS (TPAA) ===
+                if (action.action === 'list_avis') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/avis/items'), window.limit(50));
+                    const snapshot = await window.getDocs(q);
+                    if (snapshot.empty) return "Aucun avis/TPAA trouvé.";
+                    let result = `${snapshot.size} avis/TPAA:\n`;
+                    let count = 0;
+                    snapshot.forEach(d => {
+                        if (count < 5) {
+                            const data = d.data();
+                            result += `${data.numeroAvis || 'N/A'}: ${(data.description || '').substring(0, 30)}\n`;
+                        }
+                        count++;
+                    });
+                    if (count > 5) result += `...et ${count - 5} autres.`;
+                    return result;
+                }
+
+                // === STATS PRÉPARATION ===
+                if (action.action === 'stats_preparation') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(500));
+                    const snapshot = await window.getDocs(q);
+                    let stats = { total: 0, pret: 0, enCours: 0, nonCommence: 0 };
+                    snapshot.forEach(d => {
+                        stats.total++;
+                        const prep = d.data().preparation || {};
+                        const checks = [prep.materielCommande, prep.permisSecurite, prep.consignationPrevue, prep.pieceJointe, prep.gammeValidee];
+                        const done = checks.filter(Boolean).length;
+                        if (done === 5) stats.pret++;
+                        else if (done > 0) stats.enCours++;
+                        else stats.nonCommence++;
+                    });
+                    const pct = stats.total > 0 ? Math.round(stats.pret / stats.total * 100) : 0;
+                    return `Préparation: ${stats.pret} prêts (${pct}%), ${stats.enCours} en cours, ${stats.nonCommence} non commencés. Total: ${stats.total}.`;
+                }
+
+                // === DÉTAIL KITTING ===
+                if (action.action === 'kitting_detail') {
+                    const q = window.query(window.collection(window.db, 'kittings'), window.limit(50));
+                    const snapshot = await window.getDocs(q);
+                    let found = null;
+                    snapshot.forEach(d => {
+                        if (d.data().ordre === action.ordre) found = d.data();
+                    });
+                    if (!found) return `Commande ${action.ordre} non trouvée.`;
+                    return `Commande ${found.ordre}:\n` +
+                           `Zone: ${found.location || found.zoneId || 'N/A'}\n` +
+                           `Statut: ${found.status || 'N/A'}\n` +
+                           `Pièces: ${(found.pieces || []).length}\n` +
+                           `Créé le: ${found.createdAt ? new Date(found.createdAt).toLocaleDateString('fr-FR') : 'N/A'}`;
                 }
             } catch (error) {
                 return "Erreur: " + error.message;
             }
-            return "Action exécutée";
+            return "Action non reconnue.";
         }
 
         function speak(text) {
