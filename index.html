@@ -542,15 +542,23 @@
             }
         }
 
-        function quickAction(action) {
-            const commands = {
-                'kitting': 'Montre-moi les commandes Kitting',
-                'travaux': 'Montre-moi les statistiques de l\'arrêt annuel',
-                'heure': 'Quelle heure est-il?'
-            };
-            if (commands[action]) {
-                addMessage(commands[action], 'user');
-                sendCommand(commands[action]);
+        async function quickAction(action) {
+            // Actions directes Firebase (sans Claude)
+            if (action === 'kitting') {
+                addMessage('Commandes Kitting', 'user');
+                const result = await executeAction({action: 'list_kittings'});
+                addMessage(result, 'jarvis');
+                speak(result);
+            } else if (action === 'travaux') {
+                addMessage('Stats arrêt annuel', 'user');
+                const result = await executeAction({action: 'stats_arret'});
+                addMessage(result, 'jarvis');
+                speak(result);
+            } else if (action === 'heure') {
+                const heure = `Il est ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}, Madame.`;
+                addMessage('Quelle heure est-il?', 'user');
+                addMessage(heure, 'jarvis');
+                speak(heure);
             }
         }
 
