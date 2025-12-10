@@ -7,8 +7,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>J.A.R.V.I.S</title>
-
-    <!-- PWA Manifest -->
     <link rel="manifest" href="/JARVIS/manifest.json">
     <link rel="icon" type="image/png" href="/JARVIS/icons/icon-192.png">
     <link rel="apple-touch-icon" href="/JARVIS/icons/icon-192.png">
@@ -20,7 +18,6 @@
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
             min-height: 100vh;
             color: #e0e0e0;
-            overflow-x: hidden;
         }
         .container {
             max-width: 500px;
@@ -50,7 +47,6 @@
         .status-badge.online { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
         .status-badge.offline { background: rgba(255, 51, 102, 0.2); color: #ff3366; border: 1px solid #ff3366; }
         .status-badge.listening { background: rgba(0, 240, 255, 0.2); color: #00f0ff; border: 1px solid #00f0ff; animation: pulse 1.5s infinite; }
-        .status-badge.backend { background: rgba(138, 43, 226, 0.2); color: #9932CC; border: 1px solid #9932CC; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
         .arc-reactor { width: 100px; height: 100px; margin: 15px auto; position: relative; }
@@ -79,7 +75,6 @@
         .message.user { background: rgba(0, 240, 255, 0.1); border-left: 3px solid #00f0ff; }
         .message.jarvis { background: rgba(0, 255, 136, 0.1); border-left: 3px solid #00ff88; }
         .message.system { background: rgba(255, 170, 0, 0.1); border-left: 3px solid #ffaa00; font-size: 0.8rem; }
-        .message .time { font-size: 0.7rem; color: #606080; margin-bottom: 5px; }
 
         .voice-section { text-align: center; padding: 15px 0; }
         .voice-btn {
@@ -95,8 +90,7 @@
             justify-content: center;
             margin: 0 auto;
         }
-        .voice-btn:active, .voice-btn.listening { background: #00f0ff; color: #0a0a0f; box-shadow: 0 0 30px #00f0ff; }
-        .voice-btn.listening { animation: pulse-btn 1s infinite; }
+        .voice-btn.listening { background: #00f0ff; color: #0a0a0f; box-shadow: 0 0 30px #00f0ff; animation: pulse-btn 1s infinite; }
         @keyframes pulse-btn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .voice-hint { color: #606080; font-size: 0.8rem; margin-top: 10px; }
 
@@ -111,7 +105,7 @@
         .send-btn {
             width: 50px; height: 50px; border-radius: 50%; border: none;
             background: #00f0ff; color: #0a0a0f; font-size: 1.2rem;
-            cursor: pointer; transition: all 0.3s;
+            cursor: pointer;
         }
 
         .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
@@ -120,44 +114,31 @@
             border: 1px solid rgba(0, 240, 255, 0.2);
             background: rgba(13, 17, 23, 0.5);
             color: #e0e0e0; font-size: 0.7rem;
-            cursor: pointer; transition: all 0.3s; text-align: center;
+            cursor: pointer; text-align: center;
         }
         .quick-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: #00f0ff; }
         .quick-btn .icon { font-size: 1.3rem; margin-bottom: 3px; }
 
-        .settings-row { display: flex; gap: 10px; margin-top: 10px; }
-        .settings-btn {
-            flex: 1; padding: 8px; border-radius: 8px;
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            background: rgba(13, 17, 23, 0.5);
-            color: #e0e0e0; font-size: 0.75rem;
-            cursor: pointer;
-        }
-        .settings-btn.active { border-color: #00ff88; color: #00ff88; }
-
         .footer { text-align: center; padding: 10px; color: #606080; font-size: 0.7rem; }
 
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px;
+        .setup-banner {
+            background: rgba(255, 170, 0, 0.1);
+            border: 1px solid #ffaa00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        .modal-content {
-            max-width: 400px; margin: 50px auto;
-            background: #1a1a2e; padding: 20px; border-radius: 15px;
-            border: 1px solid #00f0ff;
-        }
-        .modal h3 { color: #00f0ff; margin-bottom: 15px; }
-        .modal input {
+        .setup-banner h4 { color: #ffaa00; margin-bottom: 10px; }
+        .setup-banner input {
             width: 100%; padding: 10px; margin: 10px 0;
-            background: #0a0a0f; border: 1px solid #00f0ff;
-            color: #e0e0e0; border-radius: 5px;
+            border-radius: 8px; border: 1px solid #ffaa00;
+            background: rgba(0,0,0,0.3); color: #e0e0e0;
         }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .modal-buttons button {
-            flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer;
+        .setup-banner button {
+            padding: 10px 20px; border-radius: 8px; border: none;
+            background: #00ff88; color: #0a0a0f; cursor: pointer;
         }
-        .modal-buttons .save { background: #00ff88; color: #0a0a0f; }
-        .modal-buttons .cancel { background: #333; color: #e0e0e0; }
     </style>
 </head>
 <body>
@@ -165,7 +146,7 @@
         <header class="header">
             <h1>J.A.R.V.I.S</h1>
             <p>JUST A RATHER VERY INTELLIGENT SYSTEM</p>
-            <span class="status-badge offline" id="statusBadge">HORS LIGNE</span>
+            <span class="status-badge offline" id="statusBadge">CONFIGURATION</span>
         </header>
 
         <div class="arc-reactor" id="arcReactor">
@@ -174,11 +155,16 @@
             <div class="circle inner"></div>
         </div>
 
+        <!-- Banner de configuration (visible si pas configuré) -->
+        <div class="setup-banner" id="setupBanner">
+            <h4>Configuration requise</h4>
+            <p style="font-size: 0.8rem; color: #888;">Entrez l'URL de votre Worker Cloudflare</p>
+            <input type="text" id="workerUrl" placeholder="https://jarvis.votrenom.workers.dev">
+            <button onclick="saveWorkerUrl()">Connecter</button>
+        </div>
+
         <div class="conversation" id="conversation">
-            <div class="message system">
-                <div class="time">Système</div>
-                Bienvenue. Configurez le backend PC pour Whisper + Claude.
-            </div>
+            <div class="message system">Bienvenue. Configurez votre Worker Cloudflare pour activer Claude.</div>
         </div>
 
         <div class="voice-section">
@@ -187,48 +173,26 @@
         </div>
 
         <div class="input-section">
-            <input type="text" class="text-input" id="textInput" placeholder="Tapez votre commande..." onkeypress="handleKeyPress(event)">
+            <input type="text" class="text-input" id="textInput" placeholder="Tapez votre commande..." onkeypress="if(event.key==='Enter')sendMessage()">
             <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
 
         <div class="quick-actions">
             <button class="quick-btn" onclick="quickAction('kitting')"><div class="icon">📦</div>Kitting</button>
-            <button class="quick-btn" onclick="quickAction('emails')"><div class="icon">📧</div>Emails</button>
-            <button class="quick-btn" onclick="quickAction('calendar')"><div class="icon">📅</div>Agenda</button>
-            <button class="quick-btn" onclick="quickAction('weather')"><div class="icon">🌤️</div>Météo</button>
-            <button class="quick-btn" onclick="quickAction('screenshot')"><div class="icon">📸</div>Capture</button>
-            <button class="quick-btn" onclick="quickAction('pc')"><div class="icon">💻</div>PC</button>
+            <button class="quick-btn" onclick="quickAction('travaux')"><div class="icon">🔧</div>Travaux</button>
+            <button class="quick-btn" onclick="quickAction('heure')"><div class="icon">🕐</div>Heure</button>
         </div>
 
-        <div class="settings-row">
-            <button class="settings-btn" id="modeBtn" onclick="toggleMode()">Mode: Local</button>
-            <button class="settings-btn" onclick="openSettings()">⚙️ Backend URL</button>
-        </div>
-
-        <footer class="footer">JARVIS PWA v2.0 • Whisper + Claude</footer>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <h3>Configuration Backend</h3>
-            <p style="color: #888; font-size: 0.8rem; margin-bottom: 10px;">
-                Entrez l'URL ngrok du backend PC (ex: https://xxxx.ngrok.io)
-            </p>
-            <input type="text" id="backendUrl" placeholder="https://xxxx.ngrok-free.app">
-            <div class="modal-buttons">
-                <button class="save" onclick="saveSettings()">Sauvegarder</button>
-                <button class="cancel" onclick="closeSettings()">Annuler</button>
-            </div>
-        </div>
+        <footer class="footer">JARVIS PWA v3.1 • Kitting + Cath's Eyes</footer>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc, updateDoc, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        const firebaseConfig = {
+        // Firebase Kitting
+        const kittingConfig = {
             apiKey: "AIzaSyA4bfAKvmgkw1DyTZSvcudndX7z7hUJWZU",
             authDomain: "kitting-acierie.firebaseapp.com",
             projectId: "kitting-acierie",
@@ -237,259 +201,197 @@
             appId: "1:209681179346:web:1d3f521c178a1910d2430b"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Firebase Cath's Eyes (Arrêt Annuel)
+        const cathsEyesConfig = {
+            apiKey: "AIzaSyBI6F9YaMkxjIOzMpyjz3osrTklAMpIBZE",
+            authDomain: "caths-eyes.firebaseapp.com",
+            projectId: "caths-eyes",
+            storageBucket: "caths-eyes.firebasestorage.app",
+            messagingSenderId: "659756322626",
+            appId: "1:659756322626:web:4163988910805ef7ec82db"
+        };
 
-        window.db = db;
+        // Initialiser les deux apps Firebase
+        const kittingApp = initializeApp(kittingConfig, 'kitting');
+        const cathsEyesApp = initializeApp(cathsEyesConfig, 'cathsEyes');
+
+        const dbKitting = getFirestore(kittingApp);
+        const dbCathsEyes = getFirestore(cathsEyesApp);
+
+        // Exposer pour le script principal
+        window.dbKitting = dbKitting;
+        window.dbCathsEyes = dbCathsEyes;
+        window.db = dbKitting; // Compatibilité
         window.addDoc = addDoc;
         window.collection = collection;
         window.query = query;
         window.orderBy = orderBy;
         window.limit = limit;
         window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.updateDoc = updateDoc;
+        window.where = where;
         window.firebaseReady = true;
-
-        updateStatus('online');
-        addSystemMessage('Firebase connecté');
     </script>
 
     <script>
         // Configuration
-        let BACKEND_URL = localStorage.getItem('jarvis_backend_url') || '';
-        let USE_BACKEND = localStorage.getItem('jarvis_use_backend') === 'true';
+        let WORKER_URL = localStorage.getItem('jarvis_worker_url') || '';
         let isListening = false;
-        let mediaRecorder = null;
-        let audioChunks = [];
+        let recognition = null;
 
-        // Mise à jour UI mode
-        function updateModeButton() {
-            const btn = document.getElementById('modeBtn');
-            if (USE_BACKEND && BACKEND_URL) {
-                btn.textContent = 'Mode: Backend';
-                btn.classList.add('active');
-            } else {
-                btn.textContent = 'Mode: Local';
-                btn.classList.remove('active');
+        // Vérifier si configuré
+        function checkSetup() {
+            if (WORKER_URL) {
+                document.getElementById('setupBanner').style.display = 'none';
+                updateStatus('online');
+                addSystemMessage('JARVIS connecté à Claude');
+                testWorker();
             }
         }
 
-        function toggleMode() {
-            if (!BACKEND_URL) {
-                openSettings();
+        async function testWorker() {
+            try {
+                const response = await fetch(WORKER_URL + '/health');
+                const data = await response.json();
+                if (data.status === 'online') {
+                    updateStatus('online');
+                }
+            } catch (e) {
+                addSystemMessage('Erreur connexion Worker');
+            }
+        }
+
+        function saveWorkerUrl() {
+            const url = document.getElementById('workerUrl').value.trim();
+            if (url) {
+                WORKER_URL = url.replace(/\/$/, '');
+                localStorage.setItem('jarvis_worker_url', WORKER_URL);
+                document.getElementById('setupBanner').style.display = 'none';
+                updateStatus('online');
+                addSystemMessage('Worker connecté! JARVIS est prêt.');
+                testWorker();
+            }
+        }
+
+        // Reconnaissance vocale (Web Speech API)
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            let currentTranscript = '';
+
+            recognition.onresult = (event) => {
+                let fullTranscript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    fullTranscript += event.results[i][0].transcript;
+                }
+                currentTranscript = fullTranscript;
+                document.getElementById('voiceHint').textContent = fullTranscript + '...';
+            };
+
+            window.sendVoiceMessage = function() {
+                if (currentTranscript.trim()) {
+                    addMessage(currentTranscript, 'user');
+                    sendCommand(currentTranscript);
+                    currentTranscript = '';
+                }
+            };
+
+            recognition.onerror = (event) => {
+                addSystemMessage('Erreur micro: ' + event.error);
+                stopListening();
+            };
+
+            recognition.onend = () => {
+                if (isListening) recognition.start(); // Continuer si toujours actif
+            };
+        }
+
+        function toggleVoice() {
+            if (isListening) {
+                if (window.sendVoiceMessage) window.sendVoiceMessage();
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            if (!recognition) {
+                addSystemMessage('Reconnaissance vocale non supportée');
                 return;
             }
-            USE_BACKEND = !USE_BACKEND;
-            localStorage.setItem('jarvis_use_backend', USE_BACKEND);
-            updateModeButton();
-            addSystemMessage(USE_BACKEND ? 'Mode Backend activé (Whisper + Claude)' : 'Mode Local activé');
+            isListening = true;
+            document.getElementById('voiceBtn').classList.add('listening');
+            document.getElementById('voiceHint').textContent = 'Parlez... (appuyez pour envoyer)';
+            document.getElementById('arcReactor').classList.add('active');
+            updateStatus('listening');
+            recognition.start();
         }
 
-        function openSettings() {
-            document.getElementById('settingsModal').style.display = 'block';
-            document.getElementById('backendUrl').value = BACKEND_URL;
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').style.display = 'none';
-        }
-
-        async function saveSettings() {
-            const url = document.getElementById('backendUrl').value.trim();
-            if (url) {
-                BACKEND_URL = url.replace(/\/$/, ''); // Enlever le slash final
-                localStorage.setItem('jarvis_backend_url', BACKEND_URL);
-
-                // Tester la connexion
-                try {
-                    const response = await fetch(BACKEND_URL + '/health', {
-                        headers: { 'ngrok-skip-browser-warning': 'true' }
-                    });
-                    const data = await response.json();
-                    if (data.status === 'online') {
-                        USE_BACKEND = true;
-                        localStorage.setItem('jarvis_use_backend', 'true');
-                        addSystemMessage('Backend connecté! Whisper: ' + (data.whisper ? 'OK' : 'Non') + ', Claude: ' + (data.claude ? 'OK' : 'Non'));
-                        updateStatus('backend');
-                    }
-                } catch (e) {
-                    addSystemMessage('Erreur connexion backend: ' + e.message);
-                }
-            }
-            updateModeButton();
-            closeSettings();
-        }
-
-        // Vérifier le backend au démarrage
-        async function checkBackend() {
-            if (BACKEND_URL) {
-                try {
-                    const response = await fetch(BACKEND_URL + '/health', {
-                        headers: { 'ngrok-skip-browser-warning': 'true' }
-                    });
-                    const data = await response.json();
-                    if (data.status === 'online') {
-                        updateStatus('backend');
-                        addSystemMessage('Backend PC connecté');
-                    }
-                } catch (e) {
-                    addSystemMessage('Backend non disponible - Mode local');
-                    USE_BACKEND = false;
-                }
-            }
-            updateModeButton();
-        }
-
-        // Reconnaissance vocale
-        async function toggleVoice() {
-            if (isListening) {
-                stopRecording();
-            } else {
-                startRecording();
-            }
-        }
-
-        async function startRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-                audioChunks = [];
-
-                mediaRecorder.ondataavailable = (e) => {
-                    audioChunks.push(e.data);
-                };
-
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    stream.getTracks().forEach(track => track.stop());
-
-                    if (USE_BACKEND && BACKEND_URL) {
-                        // Envoyer au backend pour transcription Whisper
-                        await transcribeWithWhisper(audioBlob);
-                    } else {
-                        // Utiliser Web Speech API (fallback)
-                        addSystemMessage('Mode local: utilisez le texte');
-                    }
-                };
-
-                mediaRecorder.start();
-                isListening = true;
-                document.getElementById('voiceBtn').classList.add('listening');
-                document.getElementById('voiceHint').textContent = 'Enregistrement... (appuyez pour arrêter)';
-                document.getElementById('arcReactor').classList.add('active');
-                updateStatus('listening');
-
-            } catch (e) {
-                addSystemMessage('Erreur micro: ' + e.message);
-            }
-        }
-
-        function stopRecording() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
+        function stopListening() {
             isListening = false;
             document.getElementById('voiceBtn').classList.remove('listening');
-            document.getElementById('voiceHint').textContent = 'Traitement...';
+            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
             document.getElementById('arcReactor').classList.remove('active');
+            updateStatus('online');
+            if (recognition) recognition.stop();
         }
 
-        async function transcribeWithWhisper(audioBlob) {
+        // Envoyer commande à Claude via Worker
+        async function sendCommand(text) {
+            updateStatus('listening');
+            document.getElementById('voiceHint').textContent = 'Claude réfléchit...';
+
             try {
-                document.getElementById('voiceHint').textContent = 'Transcription Whisper...';
-
-                const formData = new FormData();
-                formData.append('audio', audioBlob, 'audio.webm');
-
-                const response = await fetch(BACKEND_URL + '/transcribe', {
-                    method: 'POST',
-                    headers: { 'ngrok-skip-browser-warning': 'true' },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success && data.text) {
-                    addMessage(data.text, 'user');
-                    await sendToBackend(data.text);
+                if (!WORKER_URL) {
+                    // Mode local sans Claude
+                    const result = processLocal(text);
+                    addMessage(result, 'jarvis');
+                    speak(result);
                 } else {
-                    addSystemMessage('Erreur transcription: ' + (data.error || 'Inconnu'));
-                }
-            } catch (e) {
-                addSystemMessage('Erreur Whisper: ' + e.message);
-            }
+                    // Mode Claude via Worker
+                    const response = await fetch(WORKER_URL + '/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text })
+                    });
 
-            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
-            updateStatus(USE_BACKEND ? 'backend' : 'online');
-        }
+                    const data = await response.json();
 
-        async function sendToBackend(text) {
-            try {
-                document.getElementById('voiceHint').textContent = 'Claude réfléchit...';
-
-                const response = await fetch(BACKEND_URL + '/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify({ message: text })
-                });
-
-                const data = await response.json();
-
-                if (data.success && data.response) {
-                    // Vérifier si c'est une action
-                    const action = extractAction(data.response);
-                    if (action) {
-                        const result = await executeAction(action);
-                        addMessage(result, 'jarvis');
-                        await speakWithBackend(result);
+                    if (data.success && data.response) {
+                        // Vérifier si action Kitting
+                        const action = extractAction(data.response);
+                        if (action) {
+                            const result = await executeAction(action);
+                            addMessage(result, 'jarvis');
+                            speak(result);
+                        } else {
+                            addMessage(data.response, 'jarvis');
+                            speak(data.response);
+                        }
                     } else {
-                        addMessage(data.response, 'jarvis');
-                        await speakWithBackend(data.response);
+                        addMessage('Erreur: ' + (data.error || 'Inconnue'), 'system');
                     }
-                } else {
-                    addSystemMessage('Erreur Claude: ' + (data.error || 'Inconnu'));
                 }
-            } catch (e) {
-                addSystemMessage('Erreur backend: ' + e.message);
+            } catch (error) {
+                addMessage('Erreur: ' + error.message, 'system');
             }
 
+            updateStatus('online');
             document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
         }
 
-        async function speakWithBackend(text) {
-            try {
-                const response = await fetch(BACKEND_URL + '/speak', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify({ text: text })
-                });
-
-                const data = await response.json();
-
-                if (data.success && data.audio_base64) {
-                    const audio = new Audio('data:audio/mp3;base64,' + data.audio_base64);
-                    audio.play();
-                } else {
-                    // Fallback vers synthèse vocale native
-                    speak(text);
-                }
-            } catch (e) {
-                speak(text);
-            }
-        }
-
-        function speak(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'fr-FR';
-                utterance.rate = 1.1;
-                speechSynthesis.speak(utterance);
-            }
+        function processLocal(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('heure')) return `Il est ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}, Madame.`;
+            if (lower.includes('bonjour')) return "Bonjour Madame!";
+            return "Configurez le Worker Cloudflare pour activer Claude.";
         }
 
         function extractAction(response) {
@@ -498,31 +400,6 @@
                 if (match) return JSON.parse(match[0]);
             } catch (e) {}
             return null;
-        }
-
-        // Traitement local (fallback)
-        async function processLocalCommand(text) {
-            const lower = text.toLowerCase();
-
-            if ((lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau') || lower.includes('veux') || lower.includes('ajoute')) &&
-                (lower.includes('kitting') || lower.includes('commande') || lower.includes('kit'))) {
-                const numMatch = text.match(/(\d[\d\s,-]*\d|\d+)/);
-                const zoneMatch = text.match(/zone\s*([a-zA-Z]\d*)/i);
-                if (numMatch) {
-                    return { action: 'create_kitting', ordre: numMatch[1].replace(/[\s,-]/g, ''), zone: zoneMatch ? zoneMatch[1].toUpperCase() : 'A' };
-                }
-                return { response: "Quel numéro de commande, Madame?" };
-            }
-
-            if ((lower.includes('liste') || lower.includes('montre') || lower.includes('voir')) && (lower.includes('kitting') || lower.includes('commande'))) {
-                return { action: 'list_kittings' };
-            }
-
-            if (lower.includes('incomplet')) return { action: 'incomplete_kits' };
-            if (lower.includes('heure')) return { response: `Il est ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}, Madame.` };
-            if (lower.includes('bonjour')) return { response: "Bonjour Madame, comment puis-je vous aider?" };
-
-            return { response: "Je n'ai pas compris. Essayez: 'Crée kitting 123456 zone F'" };
         }
 
         async function executeAction(action) {
@@ -551,7 +428,7 @@
                     const snapshot = await window.getDocs(q);
                     if (snapshot.empty) return "Aucune commande trouvée.";
                     let result = "Dernières commandes: ";
-                    snapshot.forEach(doc => { const d = doc.data(); result += `${d.ordre} (${d.status}), `; });
+                    snapshot.forEach(doc => { result += `${doc.data().ordre} (${doc.data().status}), `; });
                     return result.slice(0, -2);
                 }
 
@@ -562,57 +439,98 @@
                     snapshot.forEach(doc => { if (doc.data().status === 'incomplet') incomplete.push(doc.data().ordre); });
                     return incomplete.length === 0 ? "Tous les kits sont complets!" : `${incomplete.length} kit(s) incomplet(s): ${incomplete.join(', ')}`;
                 }
+
+                // === CATH'S EYES / ARRÊT ANNUEL ===
+                if (action.action === 'list_travaux') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(10));
+                    const snapshot = await window.getDocs(q);
+                    if (snapshot.empty) return "Aucun travail trouvé.";
+                    let result = "Travaux: ";
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        result += `${data.ot || d.id} (${data.status || 'N/A'}), `;
+                    });
+                    return result.slice(0, -2);
+                }
+
+                if (action.action === 'travaux_en_cours') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(50));
+                    const snapshot = await window.getDocs(q);
+                    let enCours = [];
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        if (data.status === 'En cours') enCours.push(data.ot || d.id);
+                    });
+                    return enCours.length === 0 ? "Aucun travail en cours." : `${enCours.length} travaux en cours: ${enCours.slice(0,5).join(', ')}${enCours.length > 5 ? '...' : ''}`;
+                }
+
+                if (action.action === 'travaux_termines') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(50));
+                    const snapshot = await window.getDocs(q);
+                    let termines = [];
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        if (data.status === 'Terminé') termines.push(data.ot || d.id);
+                    });
+                    return termines.length === 0 ? "Aucun travail terminé." : `${termines.length} travaux terminés.`;
+                }
+
+                if (action.action === 'pieces_manquantes') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/pieces/items'), window.limit(50));
+                    const snapshot = await window.getDocs(q);
+                    let manquantes = [];
+                    snapshot.forEach(d => {
+                        const data = d.data();
+                        if (data.status === 'Manquante' || data.status === 'manquante') manquantes.push(data.numero || d.id);
+                    });
+                    return manquantes.length === 0 ? "Aucune pièce manquante!" : `${manquantes.length} pièce(s) manquante(s): ${manquantes.slice(0,5).join(', ')}${manquantes.length > 5 ? '...' : ''}`;
+                }
+
+                if (action.action === 'stats_arret') {
+                    const q = window.query(window.collection(window.dbCathsEyes, 'arretAnnuel/travaux/items'), window.limit(100));
+                    const snapshot = await window.getDocs(q);
+                    let stats = { total: 0, enCours: 0, termine: 0, attente: 0 };
+                    snapshot.forEach(d => {
+                        stats.total++;
+                        const status = d.data().status || '';
+                        if (status === 'En cours') stats.enCours++;
+                        else if (status === 'Terminé') stats.termine++;
+                        else stats.attente++;
+                    });
+                    return `Arrêt annuel: ${stats.total} travaux - ${stats.termine} terminés, ${stats.enCours} en cours, ${stats.attente} en attente.`;
+                }
             } catch (error) {
                 return "Erreur: " + error.message;
             }
-            return "Action non reconnue";
+            return "Action exécutée";
         }
 
-        // UI Functions
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 1.1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
         function updateStatus(status) {
             const badge = document.getElementById('statusBadge');
             badge.className = 'status-badge ' + status;
-            const labels = { online: 'EN LIGNE', offline: 'HORS LIGNE', listening: 'ÉCOUTE...', backend: 'BACKEND PC' };
+            const labels = { online: 'EN LIGNE', offline: 'HORS LIGNE', listening: 'ÉCOUTE...' };
             badge.textContent = labels[status] || status;
         }
 
         function addMessage(text, type) {
             const conversation = document.getElementById('conversation');
-            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
             const div = document.createElement('div');
             div.className = 'message ' + type;
-            div.innerHTML = `<div class="time">${time} - ${type === 'user' ? 'Vous' : type === 'jarvis' ? 'JARVIS' : 'Système'}</div>${text}`;
+            div.textContent = text;
             conversation.appendChild(div);
             conversation.scrollTop = conversation.scrollHeight;
         }
 
         function addSystemMessage(text) { addMessage(text, 'system'); }
-
-        async function sendCommand(text) {
-            updateStatus('listening');
-            document.getElementById('voiceHint').textContent = 'Réflexion...';
-
-            try {
-                if (USE_BACKEND && BACKEND_URL) {
-                    await sendToBackend(text);
-                } else {
-                    const result = await processLocalCommand(text);
-                    if (result.action) {
-                        const actionResult = await executeAction(result);
-                        addMessage(actionResult, 'jarvis');
-                        speak(actionResult);
-                    } else if (result.response) {
-                        addMessage(result.response, 'jarvis');
-                        speak(result.response);
-                    }
-                }
-            } catch (error) {
-                addMessage('Erreur: ' + error.message, 'system');
-            }
-
-            updateStatus(USE_BACKEND ? 'backend' : 'online');
-            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
-        }
 
         function sendMessage() {
             const input = document.getElementById('textInput');
@@ -624,16 +542,11 @@
             }
         }
 
-        function handleKeyPress(event) { if (event.key === 'Enter') sendMessage(); }
-
         function quickAction(action) {
             const commands = {
                 'kitting': 'Montre-moi les commandes Kitting',
-                'emails': 'Combien d\'emails non lus?',
-                'calendar': 'Quels sont mes rendez-vous?',
-                'weather': 'Quelle est la météo?',
-                'screenshot': 'Prends une capture d\'écran',
-                'pc': 'Statut du PC'
+                'travaux': 'Montre-moi les statistiques de l\'arrêt annuel',
+                'heure': 'Quelle heure est-il?'
             };
             if (commands[action]) {
                 addMessage(commands[action], 'user');
@@ -645,9 +558,7 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/JARVIS/sw.js', { scope: '/JARVIS/' });
         }
-
-        // Vérifier le backend au chargement
-        setTimeout(checkBackend, 1000);
+        checkSetup();
     </script>
 </body>
 </html>
