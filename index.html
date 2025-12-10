@@ -383,16 +383,35 @@
             </button>
         </div>
 
+        <!-- Settings Button -->
+        <button class="quick-btn" onclick="openSettings()" style="margin-top: 10px; width: 100%;">
+            <div class="icon">⚙️</div>
+            Configurer clé API Claude
+        </button>
+
         <!-- Footer -->
         <footer class="footer">
-            JARVIS PWA v1.0 • Connecté via Firebase
+            JARVIS PWA v1.1 • Firebase + Claude API
         </footer>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Settings Modal -->
+    <div id="settingsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px;">
+        <div style="max-width: 400px; margin: 50px auto; background: #1a1a2e; padding: 20px; border-radius: 15px; border: 1px solid #00f0ff;">
+            <h3 style="color: #00f0ff; margin-bottom: 15px;">Configuration API</h3>
+            <label style="color: #e0e0e0; font-size: 0.9rem;">Clé API Anthropic (Claude):</label>
+            <input type="password" id="apiKeyInput" style="width: 100%; padding: 10px; margin: 10px 0; background: #0a0a0f; border: 1px solid #00f0ff; color: #e0e0e0; border-radius: 5px;" placeholder="sk-ant-...">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="saveApiKey()" style="flex: 1; padding: 10px; background: #00ff88; color: #0a0a0f; border: none; border-radius: 5px; cursor: pointer;">Sauvegarder</button>
+                <button onclick="closeSettings()" style="flex: 1; padding: 10px; background: #333; color: #e0e0e0; border: none; border-radius: 5px; cursor: pointer;">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK + Claude API -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Configuration Firebase (meme que Kitting)
         const firebaseConfig = {
@@ -417,14 +436,15 @@
         window.query = query;
         window.orderBy = orderBy;
         window.limit = limit;
+        window.getDocs = getDocs;
+
+        // Claude API Key - A configurer dans les settings de l'app
+        window.ANTHROPIC_API_KEY = localStorage.getItem('anthropic_api_key') || "";
 
         // Connexion reussie
         window.firebaseReady = true;
         updateStatus('online');
-        addSystemMessage('Connecté à Firebase');
-
-        // Ecouter les reponses de JARVIS Desktop
-        listenForResponses();
+        addSystemMessage('JARVIS Mobile prêt - Mode direct Claude API');
     </script>
 
     <script>
@@ -548,49 +568,196 @@
             addMessage(text, 'system');
         }
 
+        // Historique conversation pour Claude
+        let conversationHistory = [];
+
         async function sendCommand(text) {
-            if (!window.firebaseReady) {
-                addMessage('Erreur: Firebase non connecté', 'system');
-                return;
-            }
+            updateStatus('listening');
+            document.getElementById('voiceHint').textContent = 'Réflexion...';
 
             try {
-                // Envoyer la commande a Firebase
-                await window.addDoc(window.collection(window.db, 'jarvis_commands'), {
-                    command: text,
-                    source: 'mobile',
-                    status: 'pending',
-                    createdAt: window.serverTimestamp()
+                // Ajouter au contexte
+                conversationHistory.push({ role: 'user', content: text });
+
+                // Appeler Claude API directement via proxy (CORS)
+                const response = await callClaude(text);
+
+                if (response) {
+                    // Vérifier si c'est une action Kitting
+                    const action = extractAction(response);
+                    if (action) {
+                        const result = await executeAction(action);
+                        addMessage(result, 'jarvis');
+                        speak(result);
+                    } else {
+                        addMessage(response, 'jarvis');
+                        speak(response);
+                    }
+                    conversationHistory.push({ role: 'assistant', content: response });
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                addMessage('Erreur: ' + error.message, 'system');
+            }
+
+            updateStatus('online');
+            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
+        }
+
+        async function callClaude(userMessage) {
+            // Utiliser un proxy CORS ou appeler directement si possible
+            const systemPrompt = `Tu es JARVIS, un assistant virtuel intelligent.
+Tu réponds en français de manière concise (1-2 phrases max).
+Tu appelles l'utilisateur "Madame".
+
+Pour les actions Kitting, réponds avec un JSON:
+{"action": "create_kitting", "ordre": "123456", "zone": "F"}
+{"action": "list_kittings"}
+{"action": "incomplete_kits"}
+
+Sinon réponds normalement en texte.`;
+
+            try {
+                // Essayer d'appeler Claude via un worker/proxy
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': window.ANTHROPIC_API_KEY,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 256,
+                        system: systemPrompt,
+                        messages: conversationHistory
+                    })
                 });
 
-                addMessage('Commande envoyée au PC...', 'system');
+                if (!res.ok) {
+                    throw new Error('Erreur API: ' + res.status);
+                }
+
+                const data = await res.json();
+                return data.content[0].text;
             } catch (error) {
-                console.error('Erreur envoi:', error);
-                addMessage('Erreur: ' + error.message, 'system');
+                console.error('Erreur Claude:', error);
+                // Fallback: réponse locale simple
+                return fallbackResponse(userMessage);
             }
         }
 
-        function listenForResponses() {
-            if (!window.firebaseReady) return;
+        function fallbackResponse(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('kitting') || lower.includes('commande')) {
+                return "Je ne peux pas accéder à Claude API directement depuis le navigateur. Utilisez le mode texte ou le PC.";
+            }
+            if (lower.includes('heure')) {
+                return "Il est " + new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+            }
+            if (lower.includes('bonjour') || lower.includes('salut')) {
+                return "Bonjour Madame, comment puis-je vous aider?";
+            }
+            return "Je suis en mode hors-ligne. Connectez-vous au PC pour les commandes avancées.";
+        }
 
-            const q = window.query(
-                window.collection(window.db, 'jarvis_responses'),
-                window.orderBy('createdAt', 'desc'),
-                window.limit(1)
-            );
+        function extractAction(response) {
+            try {
+                const match = response.match(/\{[^}]+\}/);
+                if (match) {
+                    return JSON.parse(match[0]);
+                }
+            } catch (e) {}
+            return null;
+        }
 
-            window.onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added') {
-                        const data = change.doc.data();
-                        if (data.response) {
-                            addMessage(data.response, 'jarvis');
-                            // Synthese vocale
-                            speak(data.response);
-                        }
+        async function executeAction(action) {
+            if (!window.firebaseReady) {
+                return "Firebase non connecté";
+            }
+
+            try {
+                if (action.action === 'create_kitting') {
+                    const ordre = (action.ordre || '').replace(/[-\s]/g, '');
+                    const zone = (action.zone || 'A').toUpperCase();
+                    const zoneId = zone[0];
+                    const subZone = zone.slice(1);
+
+                    await window.addDoc(window.collection(window.db, 'kittings'), {
+                        ordre: ordre,
+                        description: 'Commande ' + ordre,
+                        location: 'Zone ' + zone,
+                        zoneId: zoneId,
+                        subZone: subZone,
+                        status: 'incomplet',
+                        pieces: [],
+                        createdAt: new Date().toISOString(),
+                        createdBy: 'JARVIS Mobile'
+                    });
+                    return `Commande ${ordre} créée dans la zone ${zone}, Madame.`;
+                }
+
+                if (action.action === 'list_kittings') {
+                    const q = window.query(
+                        window.collection(window.db, 'kittings'),
+                        window.orderBy('createdAt', 'desc'),
+                        window.limit(5)
+                    );
+                    const snapshot = await window.getDocs(q);
+                    if (snapshot.empty) {
+                        return "Aucune commande Kitting trouvée, Madame.";
                     }
-                });
-            });
+                    let result = "Dernières commandes: ";
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        result += `${d.ordre} (${d.status}), `;
+                    });
+                    return result.slice(0, -2);
+                }
+
+                if (action.action === 'incomplete_kits') {
+                    const q = window.query(
+                        window.collection(window.db, 'kittings'),
+                        window.limit(20)
+                    );
+                    const snapshot = await window.getDocs(q);
+                    let incomplete = [];
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        if (d.status === 'incomplet') {
+                            incomplete.push(d.ordre);
+                        }
+                    });
+                    if (incomplete.length === 0) {
+                        return "Tous les kits sont complets, Madame!";
+                    }
+                    return `${incomplete.length} kit(s) incomplet(s): ${incomplete.join(', ')}`;
+                }
+
+                return "Action non reconnue";
+            } catch (error) {
+                return "Erreur: " + error.message;
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'block';
+            document.getElementById('apiKeyInput').value = localStorage.getItem('anthropic_api_key') || '';
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('anthropic_api_key', key);
+                window.ANTHROPIC_API_KEY = key;
+                addSystemMessage('Clé API sauvegardée!');
+            }
+            closeSettings();
         }
 
         function speak(text) {
