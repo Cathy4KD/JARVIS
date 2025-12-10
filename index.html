@@ -438,23 +438,43 @@
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
             recognition.continuous = false;
-            recognition.interimResults = false;
+            recognition.interimResults = true;
 
             recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                addMessage(text, 'user');
-                sendCommand(text);
-                stopListening();
+                const result = event.results[event.results.length - 1];
+                const text = result[0].transcript;
+
+                if (result.isFinal) {
+                    addMessage(text, 'user');
+                    sendCommand(text);
+                    stopListening();
+                } else {
+                    document.getElementById('voiceHint').textContent = text + '...';
+                }
             };
 
             recognition.onerror = (event) => {
                 console.error('Erreur reconnaissance:', event.error);
+                let errorMsg = 'Erreur micro';
+                if (event.error === 'not-allowed') {
+                    errorMsg = 'Micro non autorisé - Vérifiez les permissions';
+                } else if (event.error === 'no-speech') {
+                    errorMsg = 'Aucune voix détectée';
+                } else if (event.error === 'network') {
+                    errorMsg = 'Erreur réseau';
+                }
+                addMessage(errorMsg, 'system');
                 stopListening();
             };
 
             recognition.onend = () => {
                 stopListening();
             };
+
+            addSystemMessage('Reconnaissance vocale prête');
+        } else {
+            addSystemMessage('Reconnaissance vocale non supportée sur ce navigateur');
+            document.getElementById('voiceBtn').style.display = 'none';
         }
 
         function toggleVoice() {
