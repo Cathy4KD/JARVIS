@@ -14,12 +14,7 @@
     <link rel="apple-touch-icon" href="/JARVIS/icons/icon-192.png">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
@@ -27,7 +22,6 @@
             color: #e0e0e0;
             overflow-x: hidden;
         }
-
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -36,13 +30,7 @@
             display: flex;
             flex-direction: column;
         }
-
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 20px 0;
-        }
-
+        .header { text-align: center; padding: 15px 0; }
         .header h1 {
             font-size: 2.5rem;
             font-weight: 300;
@@ -50,144 +38,52 @@
             color: #00f0ff;
             text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
         }
-
-        .header p {
-            color: #606080;
-            font-size: 0.75rem;
-            margin-top: 5px;
-            letter-spacing: 2px;
-        }
-
+        .header p { color: #606080; font-size: 0.75rem; margin-top: 5px; letter-spacing: 2px; }
         .status-badge {
             display: inline-block;
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 0.8rem;
-            margin-top: 15px;
+            margin-top: 10px;
             font-weight: 600;
         }
+        .status-badge.online { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
+        .status-badge.offline { background: rgba(255, 51, 102, 0.2); color: #ff3366; border: 1px solid #ff3366; }
+        .status-badge.listening { background: rgba(0, 240, 255, 0.2); color: #00f0ff; border: 1px solid #00f0ff; animation: pulse 1.5s infinite; }
+        .status-badge.backend { background: rgba(138, 43, 226, 0.2); color: #9932CC; border: 1px solid #9932CC; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .status-badge.online {
-            background: rgba(0, 255, 136, 0.2);
-            color: #00ff88;
-            border: 1px solid #00ff88;
-        }
-
-        .status-badge.offline {
-            background: rgba(255, 51, 102, 0.2);
-            color: #ff3366;
-            border: 1px solid #ff3366;
-        }
-
-        .status-badge.listening {
-            background: rgba(0, 240, 255, 0.2);
-            color: #00f0ff;
-            border: 1px solid #00f0ff;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Arc Reactor */
-        .arc-reactor {
-            width: 120px;
-            height: 120px;
-            margin: 20px auto;
-            position: relative;
-        }
-
-        .arc-reactor .circle {
-            position: absolute;
-            border-radius: 50%;
-            border: 2px solid #00f0ff;
-        }
-
-        .arc-reactor .outer {
-            width: 100%;
-            height: 100%;
-            opacity: 0.3;
-        }
-
-        .arc-reactor .middle {
-            width: 70%;
-            height: 70%;
-            top: 15%;
-            left: 15%;
-        }
-
+        .arc-reactor { width: 100px; height: 100px; margin: 15px auto; position: relative; }
+        .arc-reactor .circle { position: absolute; border-radius: 50%; border: 2px solid #00f0ff; }
+        .arc-reactor .outer { width: 100%; height: 100%; opacity: 0.3; }
+        .arc-reactor .middle { width: 70%; height: 70%; top: 15%; left: 15%; }
         .arc-reactor .inner {
-            width: 40%;
-            height: 40%;
-            top: 30%;
-            left: 30%;
+            width: 40%; height: 40%; top: 30%; left: 30%;
             background: radial-gradient(circle, #00f0ff 0%, transparent 70%);
             box-shadow: 0 0 30px #00f0ff;
         }
+        .arc-reactor.active .inner { animation: glow 2s infinite; }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 30px #00f0ff; } 50% { box-shadow: 0 0 50px #00f0ff, 0 0 80px #00f0ff; } }
 
-        .arc-reactor.active .inner {
-            animation: glow 2s infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 30px #00f0ff; }
-            50% { box-shadow: 0 0 50px #00f0ff, 0 0 80px #00f0ff; }
-        }
-
-        /* Conversation */
         .conversation {
             flex: 1;
             background: rgba(13, 17, 23, 0.8);
             border-radius: 15px;
             padding: 15px;
-            margin: 20px 0;
+            margin: 15px 0;
             overflow-y: auto;
-            max-height: 300px;
+            max-height: 280px;
             border: 1px solid rgba(0, 240, 255, 0.2);
         }
+        .message { margin-bottom: 12px; padding: 10px 15px; border-radius: 10px; font-size: 0.9rem; line-height: 1.4; }
+        .message.user { background: rgba(0, 240, 255, 0.1); border-left: 3px solid #00f0ff; }
+        .message.jarvis { background: rgba(0, 255, 136, 0.1); border-left: 3px solid #00ff88; }
+        .message.system { background: rgba(255, 170, 0, 0.1); border-left: 3px solid #ffaa00; font-size: 0.8rem; }
+        .message .time { font-size: 0.7rem; color: #606080; margin-bottom: 5px; }
 
-        .message {
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .message.user {
-            background: rgba(0, 240, 255, 0.1);
-            border-left: 3px solid #00f0ff;
-        }
-
-        .message.jarvis {
-            background: rgba(0, 255, 136, 0.1);
-            border-left: 3px solid #00ff88;
-        }
-
-        .message.system {
-            background: rgba(255, 170, 0, 0.1);
-            border-left: 3px solid #ffaa00;
-            font-size: 0.8rem;
-        }
-
-        .message .time {
-            font-size: 0.7rem;
-            color: #606080;
-            margin-bottom: 5px;
-        }
-
-        /* Voice Button */
-        .voice-section {
-            text-align: center;
-            padding: 20px 0;
-        }
-
+        .voice-section { text-align: center; padding: 15px 0; }
         .voice-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+            width: 80px; height: 80px; border-radius: 50%;
             border: 3px solid #00f0ff;
             background: rgba(0, 240, 255, 0.1);
             color: #00f0ff;
@@ -199,203 +95,139 @@
             justify-content: center;
             margin: 0 auto;
         }
+        .voice-btn:active, .voice-btn.listening { background: #00f0ff; color: #0a0a0f; box-shadow: 0 0 30px #00f0ff; }
+        .voice-btn.listening { animation: pulse-btn 1s infinite; }
+        @keyframes pulse-btn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .voice-hint { color: #606080; font-size: 0.8rem; margin-top: 10px; }
 
-        .voice-btn:hover {
-            background: rgba(0, 240, 255, 0.2);
-            transform: scale(1.05);
-        }
-
-        .voice-btn:active, .voice-btn.listening {
-            background: #00f0ff;
-            color: #0a0a0f;
-            box-shadow: 0 0 30px #00f0ff;
-        }
-
-        .voice-btn.listening {
-            animation: pulse-btn 1s infinite;
-        }
-
-        @keyframes pulse-btn {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .voice-hint {
-            color: #606080;
-            font-size: 0.8rem;
-            margin-top: 10px;
-        }
-
-        /* Text Input */
-        .input-section {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
-        }
-
+        .input-section { display: flex; gap: 10px; padding: 10px 0; }
         .text-input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 25px;
+            flex: 1; padding: 12px 15px; border-radius: 25px;
             border: 1px solid rgba(0, 240, 255, 0.3);
             background: rgba(13, 17, 23, 0.8);
-            color: #e0e0e0;
-            font-size: 1rem;
-            outline: none;
+            color: #e0e0e0; font-size: 1rem; outline: none;
         }
-
-        .text-input:focus {
-            border-color: #00f0ff;
-        }
-
+        .text-input:focus { border-color: #00f0ff; }
         .send-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            background: #00f0ff;
-            color: #0a0a0f;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
+            width: 50px; height: 50px; border-radius: 50%; border: none;
+            background: #00f0ff; color: #0a0a0f; font-size: 1.2rem;
+            cursor: pointer; transition: all 0.3s;
         }
 
-        .send-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
+        .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
         .quick-btn {
-            padding: 12px 8px;
-            border-radius: 10px;
+            padding: 10px 8px; border-radius: 10px;
             border: 1px solid rgba(0, 240, 255, 0.2);
             background: rgba(13, 17, 23, 0.5);
-            color: #e0e0e0;
-            font-size: 0.75rem;
+            color: #e0e0e0; font-size: 0.7rem;
+            cursor: pointer; transition: all 0.3s; text-align: center;
+        }
+        .quick-btn:hover { background: rgba(0, 240, 255, 0.1); border-color: #00f0ff; }
+        .quick-btn .icon { font-size: 1.3rem; margin-bottom: 3px; }
+
+        .settings-row { display: flex; gap: 10px; margin-top: 10px; }
+        .settings-btn {
+            flex: 1; padding: 8px; border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: rgba(13, 17, 23, 0.5);
+            color: #e0e0e0; font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
         }
+        .settings-btn.active { border-color: #00ff88; color: #00ff88; }
 
-        .quick-btn:hover {
-            background: rgba(0, 240, 255, 0.1);
-            border-color: #00f0ff;
-        }
+        .footer { text-align: center; padding: 10px; color: #606080; font-size: 0.7rem; }
 
-        .quick-btn .icon {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px;
         }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 10px;
-            color: #606080;
-            font-size: 0.7rem;
+        .modal-content {
+            max-width: 400px; margin: 50px auto;
+            background: #1a1a2e; padding: 20px; border-radius: 15px;
+            border: 1px solid #00f0ff;
         }
-
-        /* Responsive */
-        @media (max-width: 380px) {
-            .header h1 {
-                font-size: 2rem;
-                letter-spacing: 5px;
-            }
-            .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .modal h3 { color: #00f0ff; margin-bottom: 15px; }
+        .modal input {
+            width: 100%; padding: 10px; margin: 10px 0;
+            background: #0a0a0f; border: 1px solid #00f0ff;
+            color: #e0e0e0; border-radius: 5px;
         }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .modal-buttons button {
+            flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer;
+        }
+        .modal-buttons .save { background: #00ff88; color: #0a0a0f; }
+        .modal-buttons .cancel { background: #333; color: #e0e0e0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <h1>J.A.R.V.I.S</h1>
             <p>JUST A RATHER VERY INTELLIGENT SYSTEM</p>
             <span class="status-badge offline" id="statusBadge">HORS LIGNE</span>
         </header>
 
-        <!-- Arc Reactor -->
         <div class="arc-reactor" id="arcReactor">
             <div class="circle outer"></div>
             <div class="circle middle"></div>
             <div class="circle inner"></div>
         </div>
 
-        <!-- Conversation -->
         <div class="conversation" id="conversation">
             <div class="message system">
                 <div class="time">Système</div>
-                Bienvenue. Appuyez sur le bouton micro ou tapez votre commande.
+                Bienvenue. Configurez le backend PC pour Whisper + Claude.
             </div>
         </div>
 
-        <!-- Voice Button -->
         <div class="voice-section">
-            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
-                🎤
-            </button>
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
             <p class="voice-hint" id="voiceHint">Appuyez pour parler</p>
         </div>
 
-        <!-- Text Input -->
         <div class="input-section">
-            <input type="text" class="text-input" id="textInput"
-                   placeholder="Tapez votre commande..."
-                   onkeypress="handleKeyPress(event)">
+            <input type="text" class="text-input" id="textInput" placeholder="Tapez votre commande..." onkeypress="handleKeyPress(event)">
             <button class="send-btn" onclick="sendMessage()">➤</button>
         </div>
 
-        <!-- Quick Actions -->
         <div class="quick-actions">
-            <button class="quick-btn" onclick="quickAction('kitting')">
-                <div class="icon">📦</div>
-                Kitting
-            </button>
-            <button class="quick-btn" onclick="quickAction('emails')">
-                <div class="icon">📧</div>
-                Emails
-            </button>
-            <button class="quick-btn" onclick="quickAction('calendar')">
-                <div class="icon">📅</div>
-                Agenda
-            </button>
-            <button class="quick-btn" onclick="quickAction('weather')">
-                <div class="icon">🌤️</div>
-                Météo
-            </button>
-            <button class="quick-btn" onclick="quickAction('screenshot')">
-                <div class="icon">📸</div>
-                Capture
-            </button>
-            <button class="quick-btn" onclick="quickAction('pc')">
-                <div class="icon">💻</div>
-                PC
-            </button>
+            <button class="quick-btn" onclick="quickAction('kitting')"><div class="icon">📦</div>Kitting</button>
+            <button class="quick-btn" onclick="quickAction('emails')"><div class="icon">📧</div>Emails</button>
+            <button class="quick-btn" onclick="quickAction('calendar')"><div class="icon">📅</div>Agenda</button>
+            <button class="quick-btn" onclick="quickAction('weather')"><div class="icon">🌤️</div>Météo</button>
+            <button class="quick-btn" onclick="quickAction('screenshot')"><div class="icon">📸</div>Capture</button>
+            <button class="quick-btn" onclick="quickAction('pc')"><div class="icon">💻</div>PC</button>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            JARVIS PWA v1.2 • Firebase Direct
-        </footer>
+        <div class="settings-row">
+            <button class="settings-btn" id="modeBtn" onclick="toggleMode()">Mode: Local</button>
+            <button class="settings-btn" onclick="openSettings()">⚙️ Backend URL</button>
+        </div>
+
+        <footer class="footer">JARVIS PWA v2.0 • Whisper + Claude</footer>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3>Configuration Backend</h3>
+            <p style="color: #888; font-size: 0.8rem; margin-bottom: 10px;">
+                Entrez l'URL ngrok du backend PC (ex: https://xxxx.ngrok.io)
+            </p>
+            <input type="text" id="backendUrl" placeholder="https://xxxx.ngrok-free.app">
+            <div class="modal-buttons">
+                <button class="save" onclick="saveSettings()">Sauvegarder</button>
+                <button class="cancel" onclick="closeSettings()">Annuler</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // Configuration Firebase (meme que Kitting)
         const firebaseConfig = {
             apiKey: "AIzaSyA4bfAKvmgkw1DyTZSvcudndX7z7hUJWZU",
             authDomain: "kitting-acierie.firebaseapp.com",
@@ -405,323 +237,249 @@
             appId: "1:209681179346:web:1d3f521c178a1910d2430b"
         };
 
-        // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Exposer globalement
         window.db = db;
         window.addDoc = addDoc;
         window.collection = collection;
-        window.serverTimestamp = serverTimestamp;
-        window.onSnapshot = onSnapshot;
         window.query = query;
         window.orderBy = orderBy;
         window.limit = limit;
         window.getDocs = getDocs;
-
-        // Connexion reussie
         window.firebaseReady = true;
+
         updateStatus('online');
-        addSystemMessage('JARVIS Mobile prêt - Kitting direct');
+        addSystemMessage('Firebase connecté');
     </script>
 
     <script>
-        // Variables globales
+        // Configuration
+        let BACKEND_URL = localStorage.getItem('jarvis_backend_url') || '';
+        let USE_BACKEND = localStorage.getItem('jarvis_use_backend') === 'true';
         let isListening = false;
-        let recognition = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
 
-        // Initialiser la reconnaissance vocale
-        // Utilise Web Speech API (gratuit, intégré à Chrome)
-        // Alternative payante: Whisper API (OpenAI) - nécessite backend
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'fr-FR';
-            recognition.continuous = true;  // Continue d'écouter
-            recognition.interimResults = true;
-            recognition.maxAlternatives = 1;
-
-            let currentTranscript = '';
-
-            recognition.onresult = (event) => {
-                // Récupérer tout le texte accumulé
-                let fullTranscript = '';
-                for (let i = 0; i < event.results.length; i++) {
-                    fullTranscript += event.results[i][0].transcript;
-                }
-                currentTranscript = fullTranscript;
-                document.getElementById('voiceHint').textContent = fullTranscript + '...';
-            };
-
-            // Fonction pour envoyer le message quand l'utilisateur arrête
-            window.sendVoiceMessage = function() {
-                if (currentTranscript.trim()) {
-                    addMessage(currentTranscript, 'user');
-                    sendCommand(currentTranscript);
-                    currentTranscript = '';
-                }
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Erreur reconnaissance:', event.error);
-                let errorMsg = 'Erreur micro';
-                if (event.error === 'not-allowed') {
-                    errorMsg = 'Micro non autorisé - Vérifiez les permissions';
-                } else if (event.error === 'no-speech') {
-                    errorMsg = 'Aucune voix détectée';
-                } else if (event.error === 'network') {
-                    errorMsg = 'Erreur réseau';
-                }
-                addMessage(errorMsg, 'system');
-                stopListening();
-            };
-
-            recognition.onend = () => {
-                stopListening();
-            };
-
-            addSystemMessage('Reconnaissance vocale prête');
-        } else {
-            addSystemMessage('Reconnaissance vocale non supportée sur ce navigateur');
-            document.getElementById('voiceBtn').style.display = 'none';
-        }
-
-        function toggleVoice() {
-            if (isListening) {
-                // Envoyer le message et arrêter
-                if (window.sendVoiceMessage) {
-                    window.sendVoiceMessage();
-                }
-                stopListening();
+        // Mise à jour UI mode
+        function updateModeButton() {
+            const btn = document.getElementById('modeBtn');
+            if (USE_BACKEND && BACKEND_URL) {
+                btn.textContent = 'Mode: Backend';
+                btn.classList.add('active');
             } else {
-                startListening();
+                btn.textContent = 'Mode: Local';
+                btn.classList.remove('active');
             }
         }
 
-        function startListening() {
-            if (!recognition) {
-                alert('La reconnaissance vocale n\'est pas supportée sur ce navigateur.');
+        function toggleMode() {
+            if (!BACKEND_URL) {
+                openSettings();
                 return;
             }
-
-            isListening = true;
-            document.getElementById('voiceBtn').classList.add('listening');
-            document.getElementById('voiceHint').textContent = 'Parlez... (appuyez pour envoyer)';
-            document.getElementById('arcReactor').classList.add('active');
-            updateStatus('listening');
-
-            recognition.start();
+            USE_BACKEND = !USE_BACKEND;
+            localStorage.setItem('jarvis_use_backend', USE_BACKEND);
+            updateModeButton();
+            addSystemMessage(USE_BACKEND ? 'Mode Backend activé (Whisper + Claude)' : 'Mode Local activé');
         }
 
-        function stopListening() {
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'block';
+            document.getElementById('backendUrl').value = BACKEND_URL;
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        async function saveSettings() {
+            const url = document.getElementById('backendUrl').value.trim();
+            if (url) {
+                BACKEND_URL = url.replace(/\/$/, ''); // Enlever le slash final
+                localStorage.setItem('jarvis_backend_url', BACKEND_URL);
+
+                // Tester la connexion
+                try {
+                    const response = await fetch(BACKEND_URL + '/health', {
+                        headers: { 'ngrok-skip-browser-warning': 'true' }
+                    });
+                    const data = await response.json();
+                    if (data.status === 'online') {
+                        USE_BACKEND = true;
+                        localStorage.setItem('jarvis_use_backend', 'true');
+                        addSystemMessage('Backend connecté! Whisper: ' + (data.whisper ? 'OK' : 'Non') + ', Claude: ' + (data.claude ? 'OK' : 'Non'));
+                        updateStatus('backend');
+                    }
+                } catch (e) {
+                    addSystemMessage('Erreur connexion backend: ' + e.message);
+                }
+            }
+            updateModeButton();
+            closeSettings();
+        }
+
+        // Vérifier le backend au démarrage
+        async function checkBackend() {
+            if (BACKEND_URL) {
+                try {
+                    const response = await fetch(BACKEND_URL + '/health', {
+                        headers: { 'ngrok-skip-browser-warning': 'true' }
+                    });
+                    const data = await response.json();
+                    if (data.status === 'online') {
+                        updateStatus('backend');
+                        addSystemMessage('Backend PC connecté');
+                    }
+                } catch (e) {
+                    addSystemMessage('Backend non disponible - Mode local');
+                    USE_BACKEND = false;
+                }
+            }
+            updateModeButton();
+        }
+
+        // Reconnaissance vocale
+        async function toggleVoice() {
+            if (isListening) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    stream.getTracks().forEach(track => track.stop());
+
+                    if (USE_BACKEND && BACKEND_URL) {
+                        // Envoyer au backend pour transcription Whisper
+                        await transcribeWithWhisper(audioBlob);
+                    } else {
+                        // Utiliser Web Speech API (fallback)
+                        addSystemMessage('Mode local: utilisez le texte');
+                    }
+                };
+
+                mediaRecorder.start();
+                isListening = true;
+                document.getElementById('voiceBtn').classList.add('listening');
+                document.getElementById('voiceHint').textContent = 'Enregistrement... (appuyez pour arrêter)';
+                document.getElementById('arcReactor').classList.add('active');
+                updateStatus('listening');
+
+            } catch (e) {
+                addSystemMessage('Erreur micro: ' + e.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
             isListening = false;
             document.getElementById('voiceBtn').classList.remove('listening');
-            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
+            document.getElementById('voiceHint').textContent = 'Traitement...';
             document.getElementById('arcReactor').classList.remove('active');
-            updateStatus('online');
-
-            if (recognition) {
-                recognition.stop();
-            }
         }
 
-        function updateStatus(status) {
-            const badge = document.getElementById('statusBadge');
-            badge.className = 'status-badge ' + status;
-
-            switch(status) {
-                case 'online':
-                    badge.textContent = 'EN LIGNE';
-                    break;
-                case 'offline':
-                    badge.textContent = 'HORS LIGNE';
-                    break;
-                case 'listening':
-                    badge.textContent = 'ÉCOUTE...';
-                    break;
-            }
-        }
-
-        function addMessage(text, type) {
-            const conversation = document.getElementById('conversation');
-            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message ' + type;
-            messageDiv.innerHTML = `
-                <div class="time">${time} - ${type === 'user' ? 'Vous' : type === 'jarvis' ? 'JARVIS' : 'Système'}</div>
-                ${text}
-            `;
-
-            conversation.appendChild(messageDiv);
-            conversation.scrollTop = conversation.scrollHeight;
-        }
-
-        function addSystemMessage(text) {
-            addMessage(text, 'system');
-        }
-
-
-        async function sendCommand(text) {
-            updateStatus('listening');
-            document.getElementById('voiceHint').textContent = 'Réflexion...';
-
+        async function transcribeWithWhisper(audioBlob) {
             try {
-                // Traitement local des commandes (pas de CORS)
-                const result = await processCommand(text);
+                document.getElementById('voiceHint').textContent = 'Transcription Whisper...';
 
-                if (result.action) {
-                    // Exécuter l'action Kitting
-                    const actionResult = await executeAction(result);
-                    addMessage(actionResult, 'jarvis');
-                    speak(actionResult);
-                } else if (result.response) {
-                    // Réponse directe
-                    addMessage(result.response, 'jarvis');
-                    speak(result.response);
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'audio.webm');
+
+                const response = await fetch(BACKEND_URL + '/transcribe', {
+                    method: 'POST',
+                    headers: { 'ngrok-skip-browser-warning': 'true' },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.text) {
+                    addMessage(data.text, 'user');
+                    await sendToBackend(data.text);
+                } else {
+                    addSystemMessage('Erreur transcription: ' + (data.error || 'Inconnu'));
                 }
-            } catch (error) {
-                console.error('Erreur:', error);
-                addMessage('Erreur: ' + error.message, 'system');
+            } catch (e) {
+                addSystemMessage('Erreur Whisper: ' + e.message);
             }
 
-            updateStatus('online');
+            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
+            updateStatus(USE_BACKEND ? 'backend' : 'online');
+        }
+
+        async function sendToBackend(text) {
+            try {
+                document.getElementById('voiceHint').textContent = 'Claude réfléchit...';
+
+                const response = await fetch(BACKEND_URL + '/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.response) {
+                    // Vérifier si c'est une action
+                    const action = extractAction(data.response);
+                    if (action) {
+                        const result = await executeAction(action);
+                        addMessage(result, 'jarvis');
+                        await speakWithBackend(result);
+                    } else {
+                        addMessage(data.response, 'jarvis');
+                        await speakWithBackend(data.response);
+                    }
+                } else {
+                    addSystemMessage('Erreur Claude: ' + (data.error || 'Inconnu'));
+                }
+            } catch (e) {
+                addSystemMessage('Erreur backend: ' + e.message);
+            }
+
             document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
         }
 
-        async function processCommand(text) {
-            // Intelligence locale pour comprendre les commandes
-            const lower = text.toLowerCase();
-
-            // Créer un kitting - détection élargie
-            if (lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau') ||
-                lower.includes('veux') || lower.includes('faire') || lower.includes('ajoute')) {
-                if (lower.includes('kitting') || lower.includes('commande') || lower.includes('kit')) {
-                    // Extraire le numéro et la zone
-                    const numMatch = text.match(/(\d[\d\s,-]*\d|\d+)/);
-                    const zoneMatch = text.match(/zone\s*([a-zA-Z]\d*)/i);
-
-                    if (numMatch) {
-                        const ordre = numMatch[1].replace(/[\s,-]/g, '');
-                        const zone = zoneMatch ? zoneMatch[1].toUpperCase() : 'A';
-                        return { action: 'create_kitting', ordre: ordre, zone: zone };
-                    } else {
-                        return { response: "Bien sûr Madame! Quel est le numéro de commande? (exemple: 'Crée kitting 123456 zone F')" };
-                    }
-                }
-            }
-
-            // Lister les kittings
-            if (lower.includes('liste') || lower.includes('montre') || lower.includes('affiche') || lower.includes('voir')) {
-                if (lower.includes('kitting') || lower.includes('commande')) {
-                    return { action: 'list_kittings' };
-                }
-            }
-
-            // Kits incomplets
-            if (lower.includes('incomplet') || lower.includes('manque') || lower.includes('manquant')) {
-                return { action: 'incomplete_kits' };
-            }
-
-            // Heure
-            if (lower.includes('heure')) {
-                const time = new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-                return { response: `Il est ${time}, Madame.` };
-            }
-
-            // Date
-            if (lower.includes('date') || lower.includes('jour')) {
-                const date = new Date().toLocaleDateString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
-                return { response: `Nous sommes le ${date}, Madame.` };
-            }
-
-            // Salutations
-            if (lower.includes('bonjour') || lower.includes('salut') || lower.includes('hello')) {
-                return { response: "Bonjour Madame, comment puis-je vous aider?" };
-            }
-
-            // Au revoir
-            if (lower.includes('au revoir') || lower.includes('bye') || lower.includes('merci')) {
-                return { response: "À votre service, Madame. Bonne journée!" };
-            }
-
-            // Statut
-            if (lower.includes('statut') || lower.includes('status') || lower.includes('ça va')) {
-                return { response: "Tous les systèmes sont opérationnels, Madame." };
-            }
-
-            // Commande non reconnue
-            return { response: "Je n'ai pas compris, Madame. Essayez: 'Crée un kitting 123456 zone F' ou 'Liste des kittings'." };
-        }
-
-
-        async function executeAction(action) {
-            if (!window.firebaseReady) {
-                return "Firebase non connecté";
-            }
-
+        async function speakWithBackend(text) {
             try {
-                if (action.action === 'create_kitting') {
-                    const ordre = (action.ordre || '').replace(/[-\s]/g, '');
-                    const zone = (action.zone || 'A').toUpperCase();
-                    const zoneId = zone[0];
-                    const subZone = zone.slice(1);
+                const response = await fetch(BACKEND_URL + '/speak', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ text: text })
+                });
 
-                    await window.addDoc(window.collection(window.db, 'kittings'), {
-                        ordre: ordre,
-                        description: 'Commande ' + ordre,
-                        location: 'Zone ' + zone,
-                        zoneId: zoneId,
-                        subZone: subZone,
-                        status: 'incomplet',
-                        pieces: [],
-                        createdAt: new Date().toISOString(),
-                        createdBy: 'JARVIS Mobile'
-                    });
-                    return `Commande ${ordre} créée dans la zone ${zone}, Madame.`;
+                const data = await response.json();
+
+                if (data.success && data.audio_base64) {
+                    const audio = new Audio('data:audio/mp3;base64,' + data.audio_base64);
+                    audio.play();
+                } else {
+                    // Fallback vers synthèse vocale native
+                    speak(text);
                 }
-
-                if (action.action === 'list_kittings') {
-                    const q = window.query(
-                        window.collection(window.db, 'kittings'),
-                        window.orderBy('createdAt', 'desc'),
-                        window.limit(5)
-                    );
-                    const snapshot = await window.getDocs(q);
-                    if (snapshot.empty) {
-                        return "Aucune commande Kitting trouvée, Madame.";
-                    }
-                    let result = "Dernières commandes: ";
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        result += `${d.ordre} (${d.status}), `;
-                    });
-                    return result.slice(0, -2);
-                }
-
-                if (action.action === 'incomplete_kits') {
-                    const q = window.query(
-                        window.collection(window.db, 'kittings'),
-                        window.limit(20)
-                    );
-                    const snapshot = await window.getDocs(q);
-                    let incomplete = [];
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        if (d.status === 'incomplet') {
-                            incomplete.push(d.ordre);
-                        }
-                    });
-                    if (incomplete.length === 0) {
-                        return "Tous les kits sont complets, Madame!";
-                    }
-                    return `${incomplete.length} kit(s) incomplet(s): ${incomplete.join(', ')}`;
-                }
-
-                return "Action non reconnue";
-            } catch (error) {
-                return "Erreur: " + error.message;
+            } catch (e) {
+                speak(text);
             }
         }
 
@@ -734,10 +492,131 @@
             }
         }
 
+        function extractAction(response) {
+            try {
+                const match = response.match(/\{[^}]+\}/);
+                if (match) return JSON.parse(match[0]);
+            } catch (e) {}
+            return null;
+        }
+
+        // Traitement local (fallback)
+        async function processLocalCommand(text) {
+            const lower = text.toLowerCase();
+
+            if ((lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau') || lower.includes('veux') || lower.includes('ajoute')) &&
+                (lower.includes('kitting') || lower.includes('commande') || lower.includes('kit'))) {
+                const numMatch = text.match(/(\d[\d\s,-]*\d|\d+)/);
+                const zoneMatch = text.match(/zone\s*([a-zA-Z]\d*)/i);
+                if (numMatch) {
+                    return { action: 'create_kitting', ordre: numMatch[1].replace(/[\s,-]/g, ''), zone: zoneMatch ? zoneMatch[1].toUpperCase() : 'A' };
+                }
+                return { response: "Quel numéro de commande, Madame?" };
+            }
+
+            if ((lower.includes('liste') || lower.includes('montre') || lower.includes('voir')) && (lower.includes('kitting') || lower.includes('commande'))) {
+                return { action: 'list_kittings' };
+            }
+
+            if (lower.includes('incomplet')) return { action: 'incomplete_kits' };
+            if (lower.includes('heure')) return { response: `Il est ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}, Madame.` };
+            if (lower.includes('bonjour')) return { response: "Bonjour Madame, comment puis-je vous aider?" };
+
+            return { response: "Je n'ai pas compris. Essayez: 'Crée kitting 123456 zone F'" };
+        }
+
+        async function executeAction(action) {
+            if (!window.firebaseReady) return "Firebase non connecté";
+
+            try {
+                if (action.action === 'create_kitting') {
+                    const ordre = (action.ordre || '').replace(/[-\s]/g, '');
+                    const zone = (action.zone || 'A').toUpperCase();
+                    await window.addDoc(window.collection(window.db, 'kittings'), {
+                        ordre: ordre,
+                        description: 'Commande ' + ordre,
+                        location: 'Zone ' + zone,
+                        zoneId: zone[0],
+                        subZone: zone.slice(1),
+                        status: 'incomplet',
+                        pieces: [],
+                        createdAt: new Date().toISOString(),
+                        createdBy: 'JARVIS Mobile'
+                    });
+                    return `Commande ${ordre} créée dans la zone ${zone}, Madame.`;
+                }
+
+                if (action.action === 'list_kittings') {
+                    const q = window.query(window.collection(window.db, 'kittings'), window.orderBy('createdAt', 'desc'), window.limit(5));
+                    const snapshot = await window.getDocs(q);
+                    if (snapshot.empty) return "Aucune commande trouvée.";
+                    let result = "Dernières commandes: ";
+                    snapshot.forEach(doc => { const d = doc.data(); result += `${d.ordre} (${d.status}), `; });
+                    return result.slice(0, -2);
+                }
+
+                if (action.action === 'incomplete_kits') {
+                    const q = window.query(window.collection(window.db, 'kittings'), window.limit(20));
+                    const snapshot = await window.getDocs(q);
+                    let incomplete = [];
+                    snapshot.forEach(doc => { if (doc.data().status === 'incomplet') incomplete.push(doc.data().ordre); });
+                    return incomplete.length === 0 ? "Tous les kits sont complets!" : `${incomplete.length} kit(s) incomplet(s): ${incomplete.join(', ')}`;
+                }
+            } catch (error) {
+                return "Erreur: " + error.message;
+            }
+            return "Action non reconnue";
+        }
+
+        // UI Functions
+        function updateStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge ' + status;
+            const labels = { online: 'EN LIGNE', offline: 'HORS LIGNE', listening: 'ÉCOUTE...', backend: 'BACKEND PC' };
+            badge.textContent = labels[status] || status;
+        }
+
+        function addMessage(text, type) {
+            const conversation = document.getElementById('conversation');
+            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const div = document.createElement('div');
+            div.className = 'message ' + type;
+            div.innerHTML = `<div class="time">${time} - ${type === 'user' ? 'Vous' : type === 'jarvis' ? 'JARVIS' : 'Système'}</div>${text}`;
+            conversation.appendChild(div);
+            conversation.scrollTop = conversation.scrollHeight;
+        }
+
+        function addSystemMessage(text) { addMessage(text, 'system'); }
+
+        async function sendCommand(text) {
+            updateStatus('listening');
+            document.getElementById('voiceHint').textContent = 'Réflexion...';
+
+            try {
+                if (USE_BACKEND && BACKEND_URL) {
+                    await sendToBackend(text);
+                } else {
+                    const result = await processLocalCommand(text);
+                    if (result.action) {
+                        const actionResult = await executeAction(result);
+                        addMessage(actionResult, 'jarvis');
+                        speak(actionResult);
+                    } else if (result.response) {
+                        addMessage(result.response, 'jarvis');
+                        speak(result.response);
+                    }
+                }
+            } catch (error) {
+                addMessage('Erreur: ' + error.message, 'system');
+            }
+
+            updateStatus(USE_BACKEND ? 'backend' : 'online');
+            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
+        }
+
         function sendMessage() {
             const input = document.getElementById('textInput');
             const text = input.value.trim();
-
             if (text) {
                 addMessage(text, 'user');
                 sendCommand(text);
@@ -745,35 +624,30 @@
             }
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
+        function handleKeyPress(event) { if (event.key === 'Enter') sendMessage(); }
 
         function quickAction(action) {
             const commands = {
                 'kitting': 'Montre-moi les commandes Kitting',
                 'emails': 'Combien d\'emails non lus?',
-                'calendar': 'Quels sont mes rendez-vous aujourd\'hui?',
+                'calendar': 'Quels sont mes rendez-vous?',
                 'weather': 'Quelle est la météo?',
                 'screenshot': 'Prends une capture d\'écran',
                 'pc': 'Statut du PC'
             };
-
-            const command = commands[action];
-            if (command) {
-                addMessage(command, 'user');
-                sendCommand(command);
+            if (commands[action]) {
+                addMessage(commands[action], 'user');
+                sendCommand(commands[action]);
             }
         }
 
-        // Service Worker pour PWA
+        // Init
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/JARVIS/sw.js', { scope: '/JARVIS/' })
-                .then(() => console.log('Service Worker enregistré'))
-                .catch(err => console.error('Erreur SW:', err));
+            navigator.serviceWorker.register('/JARVIS/sw.js', { scope: '/JARVIS/' });
         }
+
+        // Vérifier le backend au chargement
+        setTimeout(checkBackend, 1000);
     </script>
 </body>
 </html>
