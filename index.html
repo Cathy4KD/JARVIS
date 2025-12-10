@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>J.A.R.V.I.S</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: #00f0ff;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+
+        .header p {
+            color: #606080;
+            font-size: 0.75rem;
+            margin-top: 5px;
+            letter-spacing: 2px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .status-badge.online {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .status-badge.offline {
+            background: rgba(255, 51, 102, 0.2);
+            color: #ff3366;
+            border: 1px solid #ff3366;
+        }
+
+        .status-badge.listening {
+            background: rgba(0, 240, 255, 0.2);
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Arc Reactor */
+        .arc-reactor {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .arc-reactor .circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid #00f0ff;
+        }
+
+        .arc-reactor .outer {
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+        }
+
+        .arc-reactor .middle {
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+        }
+
+        .arc-reactor .inner {
+            width: 40%;
+            height: 40%;
+            top: 30%;
+            left: 30%;
+            background: radial-gradient(circle, #00f0ff 0%, transparent 70%);
+            box-shadow: 0 0 30px #00f0ff;
+        }
+
+        .arc-reactor.active .inner {
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 30px #00f0ff; }
+            50% { box-shadow: 0 0 50px #00f0ff, 0 0 80px #00f0ff; }
+        }
+
+        /* Conversation */
+        .conversation {
+            flex: 1;
+            background: rgba(13, 17, 23, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            overflow-y: auto;
+            max-height: 300px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background: rgba(0, 240, 255, 0.1);
+            border-left: 3px solid #00f0ff;
+        }
+
+        .message.jarvis {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid #00ff88;
+        }
+
+        .message.system {
+            background: rgba(255, 170, 0, 0.1);
+            border-left: 3px solid #ffaa00;
+            font-size: 0.8rem;
+        }
+
+        .message .time {
+            font-size: 0.7rem;
+            color: #606080;
+            margin-bottom: 5px;
+        }
+
+        /* Voice Button */
+        .voice-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .voice-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #00f0ff;
+            background: rgba(0, 240, 255, 0.1);
+            color: #00f0ff;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .voice-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .voice-btn:active, .voice-btn.listening {
+            background: #00f0ff;
+            color: #0a0a0f;
+            box-shadow: 0 0 30px #00f0ff;
+        }
+
+        .voice-btn.listening {
+            animation: pulse-btn 1s infinite;
+        }
+
+        @keyframes pulse-btn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .voice-hint {
+            color: #606080;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+
+        /* Text Input */
+        .input-section {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 25px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            background: rgba(13, 17, 23, 0.8);
+            color: #e0e0e0;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .text-input:focus {
+            border-color: #00f0ff;
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #00f0ff;
+            color: #0a0a0f;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-btn {
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: rgba(13, 17, 23, 0.5);
+            color: #e0e0e0;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: #00f0ff;
+        }
+
+        .quick-btn .icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 10px;
+            color: #606080;
+            font-size: 0.7rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+            .header h1 {
+                font-size: 2rem;
+                letter-spacing: 5px;
+            }
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>J.A.R.V.I.S</h1>
+            <p>JUST A RATHER VERY INTELLIGENT SYSTEM</p>
+            <span class="status-badge offline" id="statusBadge">HORS LIGNE</span>
+        </header>
+
+        <!-- Arc Reactor -->
+        <div class="arc-reactor" id="arcReactor">
+            <div class="circle outer"></div>
+            <div class="circle middle"></div>
+            <div class="circle inner"></div>
+        </div>
+
+        <!-- Conversation -->
+        <div class="conversation" id="conversation">
+            <div class="message system">
+                <div class="time">Système</div>
+                Bienvenue. Appuyez sur le bouton micro ou tapez votre commande.
+            </div>
+        </div>
+
+        <!-- Voice Button -->
+        <div class="voice-section">
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+                🎤
+            </button>
+            <p class="voice-hint" id="voiceHint">Appuyez pour parler</p>
+        </div>
+
+        <!-- Text Input -->
+        <div class="input-section">
+            <input type="text" class="text-input" id="textInput"
+                   placeholder="Tapez votre commande..."
+                   onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="quickAction('kitting')">
+                <div class="icon">📦</div>
+                Kitting
+            </button>
+            <button class="quick-btn" onclick="quickAction('emails')">
+                <div class="icon">📧</div>
+                Emails
+            </button>
+            <button class="quick-btn" onclick="quickAction('calendar')">
+                <div class="icon">📅</div>
+                Agenda
+            </button>
+            <button class="quick-btn" onclick="quickAction('weather')">
+                <div class="icon">🌤️</div>
+                Météo
+            </button>
+            <button class="quick-btn" onclick="quickAction('screenshot')">
+                <div class="icon">📸</div>
+                Capture
+            </button>
+            <button class="quick-btn" onclick="quickAction('pc')">
+                <div class="icon">💻</div>
+                PC
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            JARVIS PWA v1.0 • Connecté via Firebase
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Configuration Firebase (meme que Kitting)
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4bfAKvmgkw1DyTZSvcudndX7z7hUJWZU",
+            authDomain: "kitting-acierie.firebaseapp.com",
+            projectId: "kitting-acierie",
+            storageBucket: "kitting-acierie.firebasestorage.app",
+            messagingSenderId: "209681179346",
+            appId: "1:209681179346:web:1d3f521c178a1910d2430b"
+        };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Exposer globalement
+        window.db = db;
+        window.addDoc = addDoc;
+        window.collection = collection;
+        window.serverTimestamp = serverTimestamp;
+        window.onSnapshot = onSnapshot;
+        window.query = query;
+        window.orderBy = orderBy;
+        window.limit = limit;
+
+        // Connexion reussie
+        window.firebaseReady = true;
+        updateStatus('online');
+        addSystemMessage('Connecté à Firebase');
+
+        // Ecouter les reponses de JARVIS Desktop
+        listenForResponses();
+    </script>
+
+    <script>
+        // Variables globales
+        let isListening = false;
+        let recognition = null;
+
+        // Initialiser la reconnaissance vocale
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                addMessage(text, 'user');
+                sendCommand(text);
+                stopListening();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Erreur reconnaissance:', event.error);
+                stopListening();
+            };
+
+            recognition.onend = () => {
+                stopListening();
+            };
+        }
+
+        function toggleVoice() {
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            if (!recognition) {
+                alert('La reconnaissance vocale n\'est pas supportée sur ce navigateur.');
+                return;
+            }
+
+            isListening = true;
+            document.getElementById('voiceBtn').classList.add('listening');
+            document.getElementById('voiceHint').textContent = 'Je vous écoute...';
+            document.getElementById('arcReactor').classList.add('active');
+            updateStatus('listening');
+
+            recognition.start();
+        }
+
+        function stopListening() {
+            isListening = false;
+            document.getElementById('voiceBtn').classList.remove('listening');
+            document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
+            document.getElementById('arcReactor').classList.remove('active');
+            updateStatus('online');
+
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        function updateStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge ' + status;
+
+            switch(status) {
+                case 'online':
+                    badge.textContent = 'EN LIGNE';
+                    break;
+                case 'offline':
+                    badge.textContent = 'HORS LIGNE';
+                    break;
+                case 'listening':
+                    badge.textContent = 'ÉCOUTE...';
+                    break;
+            }
+        }
+
+        function addMessage(text, type) {
+            const conversation = document.getElementById('conversation');
+            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + type;
+            messageDiv.innerHTML = `
+                <div class="time">${time} - ${type === 'user' ? 'Vous' : type === 'jarvis' ? 'JARVIS' : 'Système'}</div>
+                ${text}
+            `;
+
+            conversation.appendChild(messageDiv);
+            conversation.scrollTop = conversation.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            addMessage(text, 'system');
+        }
+
+        async function sendCommand(text) {
+            if (!window.firebaseReady) {
+                addMessage('Erreur: Firebase non connecté', 'system');
+                return;
+            }
+
+            try {
+                // Envoyer la commande a Firebase
+                await window.addDoc(window.collection(window.db, 'jarvis_commands'), {
+                    command: text,
+                    source: 'mobile',
+                    status: 'pending',
+                    createdAt: window.serverTimestamp()
+                });
+
+                addMessage('Commande envoyée au PC...', 'system');
+            } catch (error) {
+                console.error('Erreur envoi:', error);
+                addMessage('Erreur: ' + error.message, 'system');
+            }
+        }
+
+        function listenForResponses() {
+            if (!window.firebaseReady) return;
+
+            const q = window.query(
+                window.collection(window.db, 'jarvis_responses'),
+                window.orderBy('createdAt', 'desc'),
+                window.limit(1)
+            );
+
+            window.onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        if (data.response) {
+                            addMessage(data.response, 'jarvis');
+                            // Synthese vocale
+                            speak(data.response);
+                        }
+                    }
+                });
+            });
+        }
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 1.1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('textInput');
+            const text = input.value.trim();
+
+            if (text) {
+                addMessage(text, 'user');
+                sendCommand(text);
+                input.value = '';
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function quickAction(action) {
+            const commands = {
+                'kitting': 'Montre-moi les commandes Kitting',
+                'emails': 'Combien d\'emails non lus?',
+                'calendar': 'Quels sont mes rendez-vous aujourd\'hui?',
+                'weather': 'Quelle est la météo?',
+                'screenshot': 'Prends une capture d\'écran',
+                'pc': 'Statut du PC'
+            };
+
+            const command = commands[action];
+            if (command) {
+                addMessage(command, 'user');
+                sendCommand(command);
+            }
+        }
+
+        // Service Worker pour PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker enregistré'))
+                .catch(err => console.error('Erreur SW:', err));
+        }
+    </script>
+</body>
+</html>
