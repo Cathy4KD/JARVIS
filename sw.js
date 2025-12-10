@@ -1,9 +1,9 @@
 // Service Worker JARVIS PWA
-const CACHE_NAME = 'jarvis-v2';
+const CACHE_NAME = 'jarvis-v3';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/manifest.json'
+    '/JARVIS/',
+    '/JARVIS/index.html',
+    '/JARVIS/manifest.json'
 ];
 
 // Installation

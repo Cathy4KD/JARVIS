@@ -9,9 +9,9 @@
     <title>J.A.R.V.I.S</title>
 
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="manifest" href="/JARVIS/manifest.json">
+    <link rel="icon" type="image/png" href="/JARVIS/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/JARVIS/icons/icon-192.png">
 
     <style>
         * {
@@ -755,7 +755,7 @@
 
         // Service Worker pour PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('/JARVIS/sw.js', { scope: '/JARVIS/' })
                 .then(() => console.log('Service Worker enregistré'))
                 .catch(err => console.error('Erreur SW:', err));
         }
