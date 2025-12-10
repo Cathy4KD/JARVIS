@@ -432,23 +432,34 @@
         let recognition = null;
 
         // Initialiser la reconnaissance vocale
+        // Utilise Web Speech API (gratuit, intégré à Chrome)
+        // Alternative payante: Whisper API (OpenAI) - nécessite backend
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'fr-FR';
-            recognition.continuous = false;
+            recognition.continuous = true;  // Continue d'écouter
             recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            let currentTranscript = '';
 
             recognition.onresult = (event) => {
-                const result = event.results[event.results.length - 1];
-                const text = result[0].transcript;
+                // Récupérer tout le texte accumulé
+                let fullTranscript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    fullTranscript += event.results[i][0].transcript;
+                }
+                currentTranscript = fullTranscript;
+                document.getElementById('voiceHint').textContent = fullTranscript + '...';
+            };
 
-                if (result.isFinal) {
-                    addMessage(text, 'user');
-                    sendCommand(text);
-                    stopListening();
-                } else {
-                    document.getElementById('voiceHint').textContent = text + '...';
+            // Fonction pour envoyer le message quand l'utilisateur arrête
+            window.sendVoiceMessage = function() {
+                if (currentTranscript.trim()) {
+                    addMessage(currentTranscript, 'user');
+                    sendCommand(currentTranscript);
+                    currentTranscript = '';
                 }
             };
 
@@ -478,6 +489,10 @@
 
         function toggleVoice() {
             if (isListening) {
+                // Envoyer le message et arrêter
+                if (window.sendVoiceMessage) {
+                    window.sendVoiceMessage();
+                }
                 stopListening();
             } else {
                 startListening();
@@ -492,7 +507,7 @@
 
             isListening = true;
             document.getElementById('voiceBtn').classList.add('listening');
-            document.getElementById('voiceHint').textContent = 'Je vous écoute...';
+            document.getElementById('voiceHint').textContent = 'Parlez... (appuyez pour envoyer)';
             document.getElementById('arcReactor').classList.add('active');
             updateStatus('listening');
 
