@@ -146,7 +146,7 @@
         <header class="header">
             <h1>J.A.R.V.I.S</h1>
             <p>JUST A RATHER VERY INTELLIGENT SYSTEM</p>
-            <span class="status-badge offline" id="statusBadge">CONFIGURATION</span>
+            <span class="status-badge online" id="statusBadge">EN LIGNE</span>
         </header>
 
         <div class="arc-reactor" id="arcReactor">
@@ -155,16 +155,8 @@
             <div class="circle inner"></div>
         </div>
 
-        <!-- Banner de configuration (visible si pas configuré) -->
-        <div class="setup-banner" id="setupBanner">
-            <h4>Configuration requise</h4>
-            <p style="font-size: 0.8rem; color: #888;">Entrez l'URL de votre Worker Cloudflare</p>
-            <input type="text" id="workerUrl" placeholder="https://jarvis.votrenom.workers.dev">
-            <button onclick="saveWorkerUrl()">Connecter</button>
-        </div>
-
         <div class="conversation" id="conversation">
-            <div class="message system">Bienvenue. Configurez votre Worker Cloudflare pour activer Claude.</div>
+            <div class="message system">JARVIS connecté à Firebase. Utilisez les boutons rapides.</div>
         </div>
 
         <div class="voice-section">
@@ -241,38 +233,9 @@
         let isListening = false;
         let recognition = null;
 
-        // Vérifier si configuré
+        // Initialisation
         function checkSetup() {
-            if (WORKER_URL) {
-                document.getElementById('setupBanner').style.display = 'none';
-                updateStatus('online');
-                addSystemMessage('JARVIS connecté à Claude');
-                testWorker();
-            }
-        }
-
-        async function testWorker() {
-            try {
-                const response = await fetch(WORKER_URL + '/health');
-                const data = await response.json();
-                if (data.status === 'online') {
-                    updateStatus('online');
-                }
-            } catch (e) {
-                addSystemMessage('Erreur connexion Worker');
-            }
-        }
-
-        function saveWorkerUrl() {
-            const url = document.getElementById('workerUrl').value.trim();
-            if (url) {
-                WORKER_URL = url.replace(/\/$/, '');
-                localStorage.setItem('jarvis_worker_url', WORKER_URL);
-                document.getElementById('setupBanner').style.display = 'none';
-                updateStatus('online');
-                addSystemMessage('Worker connecté! JARVIS est prêt.');
-                testWorker();
-            }
+            updateStatus('online');
         }
 
         // Reconnaissance vocale (Web Speech API)
