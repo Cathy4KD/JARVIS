@@ -292,7 +292,7 @@
             document.getElementById('voiceHint').textContent = 'Traitement...';
 
             try {
-                const result = processLocal(text);
+                const result = await processLocal(text);
                 addMessage(result, 'jarvis');
                 speak(result);
             } catch (error) {
@@ -303,13 +303,87 @@
             document.getElementById('voiceHint').textContent = 'Appuyez pour parler';
         }
 
-        function processLocal(text) {
+        // État pour la création de kitting
+        let pendingKitting = null;
+
+        async function processLocal(text) {
             const lower = text.toLowerCase();
+
+            // Si on attend des infos pour un kitting
+            if (pendingKitting) {
+                if (pendingKitting.step === 'ordre') {
+                    // Extraire le numéro (enlever espaces, tirets)
+                    const numero = text.replace(/[\s\-,]/g, '').replace(/[^\d]/g, '');
+                    if (numero.length >= 4) {
+                        pendingKitting.ordre = numero;
+                        pendingKitting.step = 'zone';
+                        return `Numéro ${numero} enregistré. Dans quelle zone, Madame?`;
+                    } else {
+                        return "Je n'ai pas compris le numéro. Répétez-le, Madame.";
+                    }
+                } else if (pendingKitting.step === 'zone') {
+                    const zone = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    if (zone.length >= 1) {
+                        // Créer le kitting
+                        const result = await executeAction({
+                            action: 'create_kitting',
+                            ordre: pendingKitting.ordre,
+                            zone: zone
+                        });
+                        pendingKitting = null;
+                        return result;
+                    } else {
+                        return "Je n'ai pas compris la zone. Répétez-la, Madame.";
+                    }
+                }
+            }
+
+            // Commandes de création
+            if (lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau') || lower.includes('nouvelle')) {
+                if (lower.includes('kitting') || lower.includes('commande')) {
+                    pendingKitting = { step: 'ordre' };
+                    return "Bien sûr Madame. Quel est le numéro de commande?";
+                }
+            }
+
+            // Commandes de lecture Kitting
+            if (lower.includes('kitting') || lower.includes('commande')) {
+                if (lower.includes('incomplet') || lower.includes('manque')) {
+                    return await executeAction({action: 'incomplete_kits'});
+                }
+                return await executeAction({action: 'list_kittings'});
+            }
+
+            // Commandes Cath's Eyes / Arrêt annuel
+            if (lower.includes('travaux') || lower.includes('arrêt') || lower.includes('arret')) {
+                if (lower.includes('en cours')) {
+                    return await executeAction({action: 'travaux_en_cours'});
+                }
+                if (lower.includes('terminé') || lower.includes('termine') || lower.includes('fini')) {
+                    return await executeAction({action: 'travaux_termines'});
+                }
+                if (lower.includes('stat')) {
+                    return await executeAction({action: 'stats_arret'});
+                }
+                return await executeAction({action: 'stats_arret'});
+            }
+
+            // Pièces manquantes
+            if (lower.includes('pièce') || lower.includes('piece')) {
+                if (lower.includes('manque') || lower.includes('manquant')) {
+                    return await executeAction({action: 'pieces_manquantes'});
+                }
+            }
+
+            // Commandes basiques
             if (lower.includes('heure')) return `Il est ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}, Madame.`;
             if (lower.includes('bonjour')) return "Bonjour Madame!";
-            if (lower.includes('kitting') || lower.includes('commande')) return "Utilisez le bouton Kitting, Madame.";
-            if (lower.includes('travaux') || lower.includes('arret') || lower.includes('arrêt')) return "Utilisez le bouton Travaux, Madame.";
-            return "Utilisez les boutons rapides pour accéder aux données, Madame.";
+            if (lower.includes('merci')) return "Je vous en prie, Madame.";
+            if (lower.includes('aide') || lower.includes('quoi faire')) {
+                return "Je peux: créer un kitting, lister les commandes, montrer les kits incomplets, afficher les stats de l'arrêt annuel, les travaux en cours, ou les pièces manquantes.";
+            }
+
+            return "Je n'ai pas compris, Madame. Dites 'aide' pour voir les commandes.";
         }
 
         function extractAction(response) {
