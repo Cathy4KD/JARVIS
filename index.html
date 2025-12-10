@@ -579,9 +579,10 @@
             // Intelligence locale pour comprendre les commandes
             const lower = text.toLowerCase();
 
-            // Créer un kitting
-            if (lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau')) {
-                if (lower.includes('kitting') || lower.includes('commande')) {
+            // Créer un kitting - détection élargie
+            if (lower.includes('crée') || lower.includes('créer') || lower.includes('nouveau') ||
+                lower.includes('veux') || lower.includes('faire') || lower.includes('ajoute')) {
+                if (lower.includes('kitting') || lower.includes('commande') || lower.includes('kit')) {
                     // Extraire le numéro et la zone
                     const numMatch = text.match(/(\d[\d\s,-]*\d|\d+)/);
                     const zoneMatch = text.match(/zone\s*([a-zA-Z]\d*)/i);
@@ -591,7 +592,7 @@
                         const zone = zoneMatch ? zoneMatch[1].toUpperCase() : 'A';
                         return { action: 'create_kitting', ordre: ordre, zone: zone };
                     } else {
-                        return { response: "Quel est le numéro de commande et la zone, Madame?" };
+                        return { response: "Bien sûr Madame! Quel est le numéro de commande? (exemple: 'Crée kitting 123456 zone F')" };
                     }
                 }
             }

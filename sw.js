@@ -1,5 +1,5 @@
 // Service Worker JARVIS PWA
-const CACHE_NAME = 'jarvis-v1';
+const CACHE_NAME = 'jarvis-v2';
 const urlsToCache = [
     '/',
     '/index.html',
