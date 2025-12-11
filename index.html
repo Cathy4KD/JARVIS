@@ -227,14 +227,26 @@
             recognition.interimResults = true;
 
             let currentTranscript = '';
+            let lastResultIndex = 0; // Suivre l'index du dernier résultat traité
 
             recognition.onresult = (event) => {
-                let fullTranscript = '';
-                for (let i = 0; i < event.results.length; i++) {
-                    fullTranscript += event.results[i][0].transcript;
+                let interimTranscript = '';
+                let finalTranscript = currentTranscript;
+
+                // Ne traiter que les nouveaux résultats (à partir de lastResultIndex)
+                for (let i = lastResultIndex; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    if (result.isFinal) {
+                        finalTranscript += result[0].transcript + ' ';
+                        lastResultIndex = i + 1; // Marquer comme traité
+                    } else {
+                        interimTranscript += result[0].transcript;
+                    }
                 }
-                currentTranscript = fullTranscript;
-                document.getElementById('voiceHint').textContent = fullTranscript + '...';
+
+                currentTranscript = finalTranscript.trim();
+                const displayText = (finalTranscript + interimTranscript).trim();
+                document.getElementById('voiceHint').textContent = displayText ? displayText + '...' : 'Parlez...';
             };
 
             window.sendVoiceMessage = function() {
@@ -242,6 +254,7 @@
                     addMessage(currentTranscript, 'user');
                     sendCommand(currentTranscript);
                     currentTranscript = '';
+                    lastResultIndex = 0; // Réinitialiser pour la prochaine session
                 }
             };
 
@@ -251,7 +264,9 @@
             };
 
             recognition.onend = () => {
-                if (isListening) recognition.start(); // Continuer si toujours actif
+                // Réinitialiser l'index quand la reconnaissance se termine
+                lastResultIndex = 0;
+                if (isListening) recognition.start();
             };
         }
 
